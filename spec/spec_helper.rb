@@ -17,9 +17,8 @@ RSpec.configure do |config|
     load_database_config
     configure_database_tasks
   end
-  config.before(:all) do
-    load_database_schema(RSpec.configuration.schema)
-  end
+  config.before(:all) { load_database_schema(RSpec.configuration.schema) }
+  config.before(:example) { trucante_database_tables }
   config.example_status_persistence_file_path = ".rspec_status"
   config.disable_monkey_patching!
   config.expect_with :rspec do |c|

@@ -23,6 +23,10 @@ module DatabaseConfigurationHelper
     ActiveRecord::Tasks::DatabaseTasks.load_schema_current(:ruby, schema_path)
   end
 
+  def trucante_database_tables
+    ActiveRecord::Tasks::DatabaseTasks.truncate_all
+  end
+
   private
 
   def configure_database_tasks

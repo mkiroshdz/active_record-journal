@@ -5,11 +5,39 @@ ActiveRecord::Schema[7.0].define(version: 0) do
   create_table :books do |t|
     t.string :title, null: false
     t.string :isbn
+    t.text :resume
+    t.integer :year
+    t.integer :publisher_id
+  end
+
+  create_table :book_authors do |t|
+    t.integer :book_id
+    t.integer :author_id
+  end
+
+  create_table :authors do |t|
+    t.string :type
+    t.string :name
+    t.string :last_name
+    t.date :birthday
+    t.string :country
+  end
+
+  create_table :publisher do |t|
+    t.string :name
   end
 
   create_table :journals do |t|
-    t.integer :user_id
-    t.string :user_type
-    t.string :user_string
+    t.jsonb :entry_changes
+    t.string :action
+    t.string :journable_type
+    t.integer :journable_id
+  end
+
+  create_table :custom_journals do |t|
+    t.jsonb :entry_changes
+    t.string :action
+    t.string :journable_type
+    t.integer :journable_id
   end
 end
