@@ -1,8 +1,11 @@
 module Fixtures
-  class Book < ActiveRecord::Base; end
-  class Journal < ActiveRecord::Base; end
-  class CustomJournal < ActiveRecord::Base
+  class AppRecord < ActiveRecord::Base
+    self.abstract_class = true
+  end
+  class CustomJournal < AppRecord
     self.table_name = 'journals'
   end
+  class Book < AppRecord; end
+  class Journal < AppRecord; end
 end
 Journal = Fixtures::Journal
