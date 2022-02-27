@@ -1,9 +1,19 @@
 require "active_record/journal/version"
+require "active_record/journal/configuration"
 
 module ActiveRecord
   module Journal
     class Error < StandardError; end
 
+    class << self
+      def configuration
+        @configuration ||= Configuration.new
+      end
+
+      def init
+        yield configuration
+      end
+    end
     # ActiveSupport.on_load(:active_record) { }
   end
 end
@@ -33,6 +43,8 @@ end
   # Customization of options and exceptions
 
 # General Use
+# default excluded:
+  # %i[id primary_key inheritance_column locking_column]
 # options: 
 #   models: ->(model) { check } | Array of Models
 #   if: ->(record) { check } | unless: ->(record) { check }

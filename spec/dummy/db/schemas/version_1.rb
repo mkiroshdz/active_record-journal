@@ -6,4 +6,10 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.string :title, null: false
     t.string :isbn
   end
+
+  create_table :journals do |t|
+    t.integer :user_id
+    t.string :user_type
+    t.string :user_string
+  end
 end

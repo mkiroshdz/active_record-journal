@@ -1,30 +1,35 @@
 RSpec.describe ActiveRecord::Journal do
-  it { binding.pry }
-
   describe '::VERSION' do
     subject { described_class::VERSION }
 
     it { is_expected.not_to be nil }
   end
 
-  describe '::configuration' do
+  describe 'initialization' do
     subject { described_class.configuration }
 
-    shared_examples 'has attributes' do
-      it { expect(subject.journal).to eq journal }
+    shared_examples 'has settings' do
+      it { is_expected.not_to be nil }
+      it { is_expected.to be_an_instance_of(described_class::Configuration) }
+      it { expect(subject.default_journal).to eq journal }
     end
 
     context 'before init' do
-      # let(:excluded_attributes) { %i[id primary_key inheritance_column locking_column] }
       let(:journal) { Journal }
 
-      include_examples 'has attributes'
+      include_examples 'has settings'
     end
 
     context 'after init' do
-      let(:journal) { CustomJournal }
+      let(:journal) { Fixtures::CustomJournal }
 
-      include_examples 'has attributes'
+      before do
+        described_class.init do |c|
+          c.default_journal_class_name = 'Fixtures::CustomJournal'
+        end
+      end
+
+      include_examples 'has settings'
     end
   end
 end
