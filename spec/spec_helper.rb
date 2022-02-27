@@ -4,6 +4,7 @@ require 'active_record/database_configurations'
 require "active_record/journal"
 require 'pry'
 
+require_relative 'fixtures/models'
 require_relative 'support/app_files_helper'
 require_relative 'support/database_configuration_helper'
 
