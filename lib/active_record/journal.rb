@@ -20,7 +20,7 @@ end
 
 ActiveSupport.on_load(:active_record) do
   ActiveRecord::Journal.configuration.journables.each do |model_class|
-    ActiveRecord::Journal::Journable::Setup.call(model_class)
+    ActiveRecord::Journal::Journable::Boot.call(model_class)
   end
 end
 
