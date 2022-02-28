@@ -9,10 +9,16 @@ module Fixtures
   class AppRecord < ActiveRecord::Base
     self.abstract_class = true
   end
-  class Book < AppRecord    
-    has_many :custom_journals, as: :journable
-    journal_reads(journal: CustomJournal)
+
+  class Publisher < AppRecord
+    self.abstract_class = true
+    journal_reads if: ->(rec) { rec.responds_to? :author_id }
+    journal_writes only: [:name], on: [:update, :destroy]
   end
+  class PublisherCompany < Publisher; end
+  class SelfPublisher < Publisher; end
+
+  # STI
   class Author < AppRecord
     has_many :journals, as: :journable
     journal_writes
@@ -22,6 +28,12 @@ module Fixtures
     journal_reads
   end
   class OriginalAuthor < Author; end
+
+  class Book < AppRecord    
+    has_many :custom_journals, as: :journable
+    journal_reads(journal: CustomJournal)
+  end
+
   class BookAuthor < AppRecord
     belongs_to :author
     journal_reads(journal: CustomJournal, if: :guest?)

@@ -18,7 +18,11 @@ RSpec.configure do |config|
     configure_database_tasks
   end
   config.before(:all) { load_database_schema(RSpec.configuration.schema) }
-  config.before(:example) { trucante_database_tables }
+  config.before(:example) do 
+    ActiveRecord::Journal.instance_variable_set('@configuration', nil)
+    ActiveRecord::Journal.configuration
+    trucante_database_tables
+  end
   config.example_status_persistence_file_path = ".rspec_status"
   config.disable_monkey_patching!
   config.expect_with :rspec do |c|

@@ -14,7 +14,7 @@ module ActiveRecord
         end
 
         def configured_for?(action)
-          rules[action.to_s]&.any?
+          rules[action.to_s]&.any? || false
         end
 
         def each_rule(action:, record: nil, &blk)
@@ -24,13 +24,14 @@ module ActiveRecord
           end
         end
 
-        def rules
+        def rules_store
           @rules ||= {}.tap do |rls|
             ActiveRecord::Journal.allowed_actions.each do |action| 
               rls[action.to_s] = []
             end
           end
         end
+        alias rules rules_store
       end
     end
   end

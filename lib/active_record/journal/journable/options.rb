@@ -2,11 +2,11 @@ module ActiveRecord
   module Journal
     ACTIONS = { reads: %w[read], writes: %w[update create destroy] }.freeze
     JOURNABLE_OPTIONS = %i[journal on if unless only except journable type]
-    
+
     def self.allowed_actions
       ActiveRecord::Journal::ACTIONS.values.flatten
     end
-
+    
     module Journable
       class OptionError < StandardError; end
 
@@ -28,7 +28,7 @@ module ActiveRecord
 
         def check_actions!
           on.each do |action|
-            next if ActiveRecord::Journal.allowed_actions.include?(action)
+            next if ActiveRecord::Journal::ACTIONS[type.to_sym].include?(action)
             raise OptionError.new("#{action} is not a valid value for the on option") 
           end
         end

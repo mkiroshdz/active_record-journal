@@ -23,8 +23,15 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.string :country
   end
 
-  create_table :publisher do |t|
+  create_table :publisher_companies do |t|
     t.string :name
+    t.integer :cid
+  end
+
+  create_table :self_publishers do |t|
+    t.integer :author_id
+    t.string :name
+    t.integer :ssn
   end
 
   create_table :journals do |t|
