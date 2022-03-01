@@ -20,13 +20,14 @@ module ActiveRecord
           return true unless self.if || self.unless
   
           assert_value = self.if ? true : false
-          assert_condition(self.if, rec, assert_value)
+          condition = self.if ? self.if : self.unless
+          assert_condition(condition, rec, assert_value)
         end
   
         private
   
         def evaluate_condition(condition, rec)
-          return condition.call(rec) if condition.responds_to?(:call)
+          return condition.call(rec) if condition.respond_to?(:call)
           rec.send(condition)
         end
   

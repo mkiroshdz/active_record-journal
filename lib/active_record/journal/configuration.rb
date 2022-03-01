@@ -5,7 +5,7 @@ module ActiveRecord
 
       DEFAULT_JOURNAL = 'Journal'
       DEFAULT_JOURNABLES = ['ActiveRecord::Base']
-      DEFAULT_ACTIONS = %w[reads writes].freeze
+      DEFAULT_ALLOWED_ON = %w[reads writes].freeze
 
       def journal
         class_name = @journal_class_name.presence || DEFAULT_JOURNAL
@@ -18,7 +18,7 @@ module ActiveRecord
       end
 
       def allowed_on
-        @allowed_on&.map(&:to_s) || DEFAULT_ACTIONS
+        @allowed_on&.map(&:to_s) || DEFAULT_ALLOWED_ON
       end
     end
   end

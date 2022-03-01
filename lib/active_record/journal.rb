@@ -1,4 +1,5 @@
 require 'active_record/journal/version'
+require 'active_record/journal/constants'
 require 'active_record/journal/configuration'
 require 'active_record/journal/record'
 require 'active_record/journal/journable' 
@@ -17,6 +18,10 @@ module ActiveRecord
 
       def init
         yield configuration
+      end
+
+      def allowed_actions
+        ActiveRecord::Journal::ACTIONS.values.flatten
       end
     end
   end

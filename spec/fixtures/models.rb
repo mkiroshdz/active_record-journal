@@ -37,12 +37,16 @@ module Fixtures
   class BookAuthor < AppRecord
     belongs_to :author
     journal_reads(journal: CustomJournal, if: :guest?)
-    journal_writes(on: %i[create], only: %i[book_id], unless: :guest?)
-    journal_writes(on: %i[update], except: %i[author_id], if: :guest?)
+    journal_writes(on: %i[create], only: %i[book_id], unless: :without_author?)
+    journal_writes(on: %i[update], except: %i[author_id], if: :with_author?)
     journal_writes(on: %i[destroy], only: [])
     
-    def guest?
-      author.is_a?(GuestAuthor)
+    def with_author?
+      !author_id.nil?
+    end
+
+    def without_author?
+      author_id.nil?
     end
   end
 end
