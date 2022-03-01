@@ -24,11 +24,6 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.integer :lock_version
   end
 
-  create_table :publisher_companies do |t|
-    t.string :name
-    t.integer :cid
-  end
-
   create_table :self_publishers do |t|
     t.integer :author_id
     t.string :name

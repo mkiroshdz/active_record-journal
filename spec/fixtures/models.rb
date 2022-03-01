@@ -12,10 +12,9 @@ module Fixtures
 
   class Publisher < AppRecord
     self.abstract_class = true
-    journal_reads if: ->(rec) { rec.responds_to? :author_id }
-    journal_writes only: [:name], on: [:update, :destroy]
+    journal_reads 
+    journal_writes
   end
-  class PublisherCompany < Publisher; end
   class SelfPublisher < Publisher; end
 
   # STI
