@@ -25,7 +25,7 @@ module ActiveRecord
         end
 
         def default_ignored_keys
-          [ model.primary_key, model.inheritance_column, model.locking_column ]
+          [ model.primary_key, model.inheritance_column, model.locking_column ].compact
         end
       end
     end

@@ -21,6 +21,7 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.string :last_name
     t.date :birthday
     t.string :country
+    t.integer :lock_version
   end
 
   create_table :publisher_companies do |t|
