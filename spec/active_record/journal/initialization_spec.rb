@@ -12,19 +12,19 @@ RSpec.describe ActiveRecord::Journal do
     end
 
     context 'before init' do
-      let(:journal) { Journal }
+      let(:journal) { ActiveRecord::Journal.configuration.journal }
       let(:journables) { [ ActiveRecord::Base ] }
 
       include_examples 'has settings'
     end
 
     context 'after init' do
-      let(:journal) { CustomJournal }
+      let(:journal) { CustomJournalRecord }
       let(:journables) { [ Fixtures::AppRecord ] }
 
       before do
         described_class.init do |c|
-          c.journal_class_name = 'CustomJournal'
+          c.journal_class_name = 'CustomJournalRecord'
           c.journable_class_names = ['Fixtures::AppRecord']
         end
       end

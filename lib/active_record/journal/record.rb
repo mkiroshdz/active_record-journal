@@ -14,7 +14,7 @@ module ActiveRecord
           attributes = Attributes.new(subject, rule)
           changes = Changes.new(subject, action, attributes.tracked_keys).call
           next unless action == 'read' || changes.any?
-          rule.journal.create!(entry_changes: changes, journable: subject, action: action)
+          rule.journal.create!(changes_map: changes, journable: subject, action: action)
         end
       end
     end

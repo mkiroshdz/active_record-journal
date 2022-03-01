@@ -1,7 +1,7 @@
-class Journal < ActiveRecord::Base
+class JournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
-class CustomJournal < ActiveRecord::Base
+class CustomJournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
 
@@ -20,23 +20,23 @@ module Fixtures
 
   # STI
   class Author < AppRecord
-    has_many :journals, as: :journable
+    has_many :journal_records, as: :journable
     journal_writes
   end
   class GuestAuthor < Author
-    has_many :journals, as: :journable
+    has_many :journal_records, as: :journable
     journal_reads
   end
   class OriginalAuthor < Author; end
 
   class Book < AppRecord    
-    has_many :custom_journals, as: :journable
-    journal_reads(journal: CustomJournal)
+    has_many :custom_journal_records, as: :journable
+    journal_reads(journal: CustomJournalRecord)
   end
 
   class BookAuthor < AppRecord
     belongs_to :author
-    journal_reads(journal: CustomJournal, if: :guest?)
+    journal_reads(journal: CustomJournalRecord, if: :guest?)
     journal_writes(on: %i[create], only: %i[book_id], unless: :without_author?)
     journal_writes(on: %i[update], except: %i[author_id], if: :with_author?)
     journal_writes(on: %i[destroy], only: [])

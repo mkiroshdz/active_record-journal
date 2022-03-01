@@ -3,7 +3,7 @@ module ActiveRecord
     class Configuration
       attr_writer :journal_class_name, :journable_class_names, :allowed_on
 
-      DEFAULT_JOURNAL = 'Journal'
+      DEFAULT_JOURNAL = 'JournalRecord'
       DEFAULT_JOURNABLES = ['ActiveRecord::Base']
       DEFAULT_ALLOWED_ON = %w[reads writes].freeze
 

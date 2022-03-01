@@ -7,7 +7,7 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
     context 'when write actions' do
       let(:record) { klass.create!(name: 'Homer', last_name: 'Simpson') }
-      let(:journals) { record.journals }
+      let(:journal_records) { record.journal_records }
 
       before do
         record.update!(last_name: 'Anon.')
@@ -15,7 +15,7 @@ RSpec.describe ActiveRecord::Journal::Journable do
       end
   
       it 'does not trigger write callbacks' do
-        expect(journals.count).to eq 0
+        expect(journal_records.count).to eq 0
       end
     end
 
@@ -27,8 +27,8 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
       it 'trigger read callbacks' do
         fst, scd, _ = klass.where(name: 'Homer').to_a
-        expect(fst.journals.where(action: :read).count).to eq 1
-        expect(scd.journals.where(action: :read).count).to eq 1
+        expect(fst.journal_records.where(action: :read).count).to eq 1
+        expect(scd.journal_records.where(action: :read).count).to eq 1
       end
     end
   end
@@ -38,7 +38,7 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
     context 'when write actions' do
       let(:record) { klass.create!(name: 'Homer', last_name: 'Simpson') }
-      let(:journals) { record.journals }
+      let(:journal_records) { record.journal_records }
 
       before do
         record.update!(last_name: 'Anon.')
@@ -46,15 +46,15 @@ RSpec.describe ActiveRecord::Journal::Journable do
       end
 
       it 'trigger create callbacks' do
-        expect(journals.where(action: :create).count).to eq 1
+        expect(journal_records.where(action: :create).count).to eq 1
       end
 
       it 'trigger update callbacks' do
-        expect(journals.where(action: :update).count).to eq 1
+        expect(journal_records.where(action: :update).count).to eq 1
       end
 
       it 'trigger destroy callbacks' do
-        expect(journals.where(action: :destroy).count).to eq 1
+        expect(journal_records.where(action: :destroy).count).to eq 1
       end
     end
 
@@ -66,8 +66,8 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
       it 'does not trigger read callbacks' do
         fst, scd, _ = klass.where(name: 'Homer').to_a
-        expect(fst.journals.where(action: :read).count).to eq 0
-        expect(scd.journals.where(action: :read).count).to eq 0
+        expect(fst.journal_records.where(action: :read).count).to eq 0
+        expect(scd.journal_records.where(action: :read).count).to eq 0
       end
     end
   end

@@ -34,17 +34,30 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.integer :ssn
   end
 
-  create_table :journals do |t|
-    t.jsonb :entry_changes
-    t.string :action
-    t.string :journable_type
-    t.integer :journable_id
+  create_table :journal_tags do |t|
+    t.string :comment
+    t.string :search_vector
+    t.jsonb :journable_id
+    t.datetime :created_at
   end
 
-  create_table :custom_journals do |t|
-    t.jsonb :entry_changes
+  create_table :journal_records do |t|
+    t.jsonb :changes_map
     t.string :action
     t.string :journable_type
     t.integer :journable_id
+    t.string :journal_tags_type
+    t.integer :journal_tag_id
+    t.string :user_type
+    t.integer :user_id
+    t.datetime :created_at
+  end
+
+  create_table :custom_journal_records do |t|
+    t.jsonb :changes_map
+    t.string :action
+    t.string :journable_type
+    t.integer :journable_id
+    t.datetime :created_at
   end
 end
