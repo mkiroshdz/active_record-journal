@@ -17,13 +17,6 @@ module ActiveRecord
           rules[action.to_s]&.any? || false
         end
 
-        def each_rule(action:, record: nil, &blk)
-          rules[action.to_s].each do |r|
-            next unless record.nil? || r.conditions_met?(record)
-            blk.call(r)
-          end
-        end
-
         def rules_store
           @rules ||= {}.tap do |rls|
             ActiveRecord::Journal.allowed_actions.each do |action| 

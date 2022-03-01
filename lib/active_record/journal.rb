@@ -1,9 +1,13 @@
 require 'active_record/journal/version'
 require 'active_record/journal/configuration'
-require 'active_record/journal/journable'
+require 'active_record/journal/record'
+require 'active_record/journal/journable' 
 
 module ActiveRecord
   module Journal
+    ACTIONS = { reads: %w[read], writes: %w[update create destroy] }.freeze
+    JOURNABLE_OPTIONS = %i[journal on if unless only except journable type]
+    
     class Error < StandardError; end
 
     class << self
@@ -20,7 +24,7 @@ end
 
 ActiveSupport.on_load(:active_record) do
   ActiveRecord::Journal.configuration.journables.each do |model_class|
-    ActiveRecord::Journal::Journable::Boot.call(model_class)
+    ActiveRecord::Journal::Journable.prepare(model_class)
   end
 end
 
