@@ -1,6 +1,6 @@
-require 'active_record/journal/journable/options'
-require 'active_record/journal/journable/rule'
-require 'active_record/journal/journable/context'
+require_relative 'journable/options'
+require_relative 'journable/rule'
+require_relative 'journable/context'
 
 module ActiveRecord
   module Journal
