@@ -5,10 +5,7 @@ require 'active_record/journal/record'
 require 'active_record/journal/journable' 
 
 module ActiveRecord
-  module Journal
-    ACTIONS = { reads: %w[read], writes: %w[update create destroy] }.freeze
-    JOURNABLE_OPTIONS = %i[journal on if unless only except journable type]
-    
+  module Journal    
     class Error < StandardError; end
 
     class << self
@@ -20,8 +17,8 @@ module ActiveRecord
         yield configuration
       end
 
-      def allowed_actions
-        ActiveRecord::Journal::ACTIONS.values.flatten
+      def record
+
       end
     end
   end
@@ -33,14 +30,19 @@ ActiveSupport.on_load(:active_record) do
   end
 end
 
-# ActiveRecord::Journal.log(responsable: user, description: 'Comment') do
-#   context do / Uses default context if not defined
-  #   track_writes/track_reads(
-  #     journal: Audits,
-  #     actions: [:create, :update, :delete],
-  #     if: ->(record) { check }, 
-  #     unless: ->(record) { check } ) -> Context
-  #  track { Actions to log }
-  #  ignore { Actions not logged }
+# Configuration: # automatic_recording (default true)
+# record::context 
+  # (journal_writes/journal_reads -> configurable?)
+  # 
+# ActiveRecord::Journal.record(responsable: user, comment: 'Comment') do
+  # actions { actions_to_track }
+  # builds journable context (dup & override)
+  # Thread.current.thread_variable_set(:_activerecord_journal_cbk_context)
+  # https://ruby-doc.org/core-2.5.0/Thread.html#method-c-current 
+  # Executes callback procedure the wrapper (context is now a param)
+# end
+
+# ActiveRecord::Journal.ignore do
+  # ignored actions here
 # end
 # end

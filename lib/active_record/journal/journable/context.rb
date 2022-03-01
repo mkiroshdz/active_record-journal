@@ -19,7 +19,7 @@ module ActiveRecord
 
         def rules_store
           @rules ||= {}.tap do |rls|
-            ActiveRecord::Journal.allowed_actions.each do |action| 
+            ActiveRecord::Journal::ACTIONS.values.flatten.each do |action| 
               rls[action.to_s] = []
             end
           end

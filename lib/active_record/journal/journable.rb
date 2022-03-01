@@ -19,7 +19,7 @@ module ActiveRecord
         # Enable & configure the tracking of the read actions
         def journal_reads(**kwargs)
           prepare_journable_context!
-          kwargs.merge!({journable: self, type: :reads})
+          kwargs.merge!({ type: :reads })
           journable_context
             .add_rule(parse_journable_options(kwargs))
         end
@@ -28,7 +28,7 @@ module ActiveRecord
         # Enable & configure the tracking of the writes, updates and destroy actions
         def journal_writes(**kwargs)
           prepare_journable_context!
-          kwargs.merge!({journable: self, type: :writes})
+          kwargs.merge!({ type: :writes })
           journable_context
             .add_rule(parse_journable_options(kwargs))
         end
@@ -58,6 +58,14 @@ module ActiveRecord
         subject.after_create callback_proc('create')
         subject.before_update callback_proc('update')
         subject.before_destroy callback_proc('destroy')
+      end
+
+      def self.callback_context
+        Thread.current.thread_variable_get(:activerecord_journal_callback_context)
+      end
+
+      def self.callback_context=(context)
+        Thread.current.thread_variable_set(:activerecord_journal_callback_context, context)
       end
 
       private

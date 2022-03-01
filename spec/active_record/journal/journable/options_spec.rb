@@ -10,7 +10,6 @@ RSpec.describe ActiveRecord::Journal::Journable::Options do
     it { expect(subject.unless).to eq options[:unless] }
     it { expect(subject.only).to eq options[:only] }
     it { expect(subject.except).to eq options[:except] }
-    it { expect(subject.journable).to eq options[:journable] }
     it { expect(subject.type).to eq options[:type] }
   end
 
