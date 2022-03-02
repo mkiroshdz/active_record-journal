@@ -4,7 +4,7 @@ RSpec.describe ActiveRecord::Journal::Record::Attributes do
 
   describe '#tracked_keys' do
     let(:model) { Fixtures::Author }
-    let(:rule) { model.journable_context.rules['update'].first }
+    let(:rule) { model.journable_context.rules.search_by(action: 'update').first }
     let(:tracked_keys) { subject.keys - %w[id type lock_version] }
 
     it { expect(subject.tracked_keys).to eq tracked_keys }
@@ -13,7 +13,7 @@ RSpec.describe ActiveRecord::Journal::Record::Attributes do
   describe '#ignored_keys' do
     context 'when no attribute options provided' do 
       let(:model) { Fixtures::Author }
-      let(:rule) { model.journable_context.rules['update'].first }
+      let(:rule) { model.journable_context.rules.search_by(action: 'update').first }
       let(:ignored_keys) { %w[id type lock_version] }
 
       it { expect(subject.ignored_keys).to eq ignored_keys }
@@ -21,7 +21,7 @@ RSpec.describe ActiveRecord::Journal::Record::Attributes do
 
     context 'when only option provided' do 
       let(:model) { Fixtures::BookAuthor }
-      let(:rule) { model.journable_context.rules['create'].first }
+      let(:rule) { model.journable_context.rules.search_by(action: 'create').first }
       let(:ignored_keys) { (subject.keys - rule.only) | subject.default_ignored_keys  }
 
       it { expect(subject.ignored_keys).to eq ignored_keys }
@@ -29,7 +29,7 @@ RSpec.describe ActiveRecord::Journal::Record::Attributes do
 
     context 'when except option provided' do 
       let(:model) { Fixtures::BookAuthor }
-      let(:rule) { model.journable_context.rules['update'].first }
+      let(:rule) { model.journable_context.rules.search_by(action: 'update').first }
       let(:ignored_keys) { subject.ignored_keys | rule.except }
 
       it { expect(subject.ignored_keys).to eq ignored_keys }

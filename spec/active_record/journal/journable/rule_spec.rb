@@ -1,11 +1,10 @@
 RSpec.describe ActiveRecord::Journal::Journable::Rule do
   let(:options) { ActiveRecord::Journal::Journable::Options.new(**kwargs) }
-  subject { described_class.new(options) }
+  subject { described_class.new(Class.new(Fixtures::AppRecord), options) }
 
   describe '#conditions_met?' do
     context 'when no conditions' do
       let(:kwargs) { { type: :reads } }
-
       it { expect(subject.conditions_met?(nil)).to be true }
     end
 
@@ -26,7 +25,9 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     end
 
     context 'when if method' do
-      subject { Fixtures::BookAuthor.journable_context.rules['update'].first }
+      subject do 
+        Fixtures::BookAuthor.journable_context.rules.search_by(action: 'update').first
+      end
       
       let(:record_with_author) { Fixtures::BookAuthor.new(author_id: 1) }
       let(:record_without_author) { Fixtures::BookAuthor.new }
@@ -36,7 +37,9 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     end
 
     context 'when unless method' do
-      subject { Fixtures::BookAuthor.journable_context.rules['create'].first }
+      subject do 
+        Fixtures::BookAuthor.journable_context.rules.search_by(action: 'create').first
+      end
       
       let(:record_with_author) { Fixtures::BookAuthor.new(author_id: 1) }
       let(:record_without_author) { Fixtures::BookAuthor.new }

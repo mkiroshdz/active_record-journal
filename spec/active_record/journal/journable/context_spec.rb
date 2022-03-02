@@ -1,21 +1,6 @@
 RSpec.describe ActiveRecord::Journal::Journable::Context do
   let(:context) { klass.send(:journable_context) }
 
-  describe '#journable' do
-    subject(:journable) { context.journable }
-
-    context 'with STI configured' do
-      let(:klass) { Fixtures::OriginalAuthor }
-      let(:sti) { Fixtures::Author }
-      it { is_expected.to eq sti }
-    end
-
-    context 'with STI config overriden' do
-      let(:klass) { Fixtures::GuestAuthor }
-      it { is_expected.to eq klass }
-    end
-  end
-
   describe '#configured_for?' do
     context 'when everything allowed' do
       let(:klass) { Fixtures::BookAuthor }
@@ -50,25 +35,25 @@ RSpec.describe ActiveRecord::Journal::Journable::Context do
     let(:rules) { context.rules }
 
     it 'set correct read options' do
-      expect(rules['read'].first.to_h).to include(
+      expect(rules.search_by(action: 'read').first.to_h).to include(
         type: :reads, journal: CustomJournalRecord, on: ActiveRecord::Journal::ACTIONS[:reads], if: :guest?
       )
     end
 
     it 'set correct create options' do
-      expect(rules['create'].first.to_h).to include(
+      expect(rules.search_by(action: 'create').first.to_h).to include(
         type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[create], unless: :without_author?, only: %w[book_id]
       )
     end
 
     it 'set correct update options' do
-      expect(rules['update'].first.to_h).to include(
+      expect(rules.search_by(action: 'update').first.to_h).to include(
         type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[update], if: :with_author?, except: %w[author_id]
       )
     end
 
     it 'set correct destroy options' do
-      expect(rules['destroy'].first.to_h).to include(
+      expect(rules.search_by(action: 'destroy').first.to_h).to include(
         type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[destroy], only: []
       )
     end

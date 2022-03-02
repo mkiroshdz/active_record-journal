@@ -4,6 +4,13 @@ module ActiveRecord
       class OptionError < StandardError; end
 
       Options = Struct.new(*ActiveRecord::Journal::JOURNABLE_OPTIONS, keyword_init: true) do
+        def self.parse(kwargs, type)
+          options = Options.new(**kwargs, type: type)
+          options.check_type!
+          options.check_actions!
+          options
+        end
+
         def initialize(**kwargs)
           type = kwargs[:type].to_sym 
           kwargs[:type] = type

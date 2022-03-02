@@ -11,8 +11,11 @@ module ActiveRecord
         end
 
         def_delegator :@options, :to_h, :to_h
+
+        attr_reader :journable, :options
   
-        def initialize(options)
+        def initialize(journable, options)
+          @journable = journable
           @options = options
         end
   

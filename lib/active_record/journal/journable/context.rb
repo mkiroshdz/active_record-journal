@@ -2,29 +2,47 @@ module ActiveRecord
   module Journal
     module Journable
       class Context
-        attr_reader :journable, :rules
-  
-        def initialize(journable)
-          @journable = journable
+        attr_reader :user, :description
+
+        Storage = Struct.new(*ActiveRecord::Journal::ACTIONS.values.flatten.map(&:to_sym), keyword_init: true) do
+          def initialize
+            actions = ActiveRecord::Journal::ACTIONS.values.flatten
+            kwargs = actions.each_with_object({}) {|a, map| map[a.to_sym] = {} }
+            super(**kwargs)
+          end
+
+          def add(action:, journable:, rule:)
+            map = public_send(action)
+            map[journable.model_name.name] ||= []
+            map[journable.model_name.name] << rule
+          end
+
+          def search_by(action:, subject: nil)
+            return unless map = public_send(action)
+            return map.values.flatten if subject.nil?
+            return unless key = map.keys.find {|name| subject.is_a?(name.constantize) }
+            map[key]
+          end
         end
   
-        def add_rule(options)
-          rule = ActiveRecord::Journal::Journable::Rule.new(options)
-          options.on.each {|action| rules[action].push(rule) }
+        def initialize(user: nil, description: nil)
+          @user = user
+          @description = description
         end
 
         def configured_for?(action)
-          rules[action.to_s]&.any? || false
+          rules.search_by(action: action.to_s)&.any? || false
         end
 
-        def rules_store
-          @rules ||= {}.tap do |rls|
-            ActiveRecord::Journal::ACTIONS.values.flatten.each do |action| 
-              rls[action.to_s] = []
-            end
-          end
+        def record(journable, type = nil, with: nil)
+          options = ActiveRecord::Journal::Journable::Options.parse(with, type)
+          rule = ActiveRecord::Journal::Journable::Rule.new(journable, options)
+          options.on.each { |action| rules.add(action: action, journable: journable, rule: rule) }
         end
-        alias rules rules_store
+
+        def rules
+          @rules ||= Storage.new
+        end
       end
     end
   end

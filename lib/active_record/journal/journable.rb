@@ -18,59 +18,44 @@ module ActiveRecord
         ##
         # Enable & configure the tracking of the read actions
         def journal_reads(**kwargs)
-          prepare_journable_context!
-          kwargs.merge!({ type: :reads })
-          journable_context
-            .add_rule(parse_journable_options(kwargs))
+          init_journable_context
+          journable_context.record(self, :reads, with: kwargs)
         end
 
         ##
         # Enable & configure the tracking of the writes, updates and destroy actions
         def journal_writes(**kwargs)
-          prepare_journable_context!
-          kwargs.merge!({ type: :writes })
-          journable_context
-            .add_rule(parse_journable_options(kwargs))
+          init_journable_context
+          journable_context.record(self, :writes, with: kwargs)
         end
 
         private
 
-        def prepare_journable_context!
-          return if @journable_context_prepared
-          self.journable_context = Context.new(self)
-          @journable_context_prepared = true
-        end
-
-        def parse_journable_options(kwargs)
-          options = Options.new(**kwargs)
-          options.check_type!
-          options.check_actions!
-          options
+        def init_journable_context
+          return if @init_journable_context
+          self.journable_context = Context.new
+          @init_journable_context = true
         end
       end
 
+      ##
+      # Add configuration methods available to the journable models.
       def self.prepare(subject)
         subject.extend ClassMethods
-        # Stores the model config and customization
-        subject.class_attribute :journable_context
-        # Callbacks
-        subject.after_find callback_proc('read')
-        subject.after_create callback_proc('create')
-        subject.before_update callback_proc('update')
-        subject.before_destroy callback_proc('destroy')
-      end
 
-      def self.callback_context
-        Thread.current.thread_variable_get(:activerecord_journal_callback_context)
-      end
+        # Setup configuration storage
+        subject.class_attribute :journable_context 
 
-      def self.callback_context=(context)
-        Thread.current.thread_variable_set(:activerecord_journal_callback_context, context)
+        # Setup Callbacks
+        subject.after_find callback_procedure_for('read')
+        subject.after_create callback_procedure_for('create')
+        subject.before_update callback_procedure_for('update')
+        subject.before_destroy callback_procedure_for('destroy')
       end
 
       private
 
-      def self.callback_proc(action)
+      def self.callback_procedure_for(action)
         ->(record) { ActiveRecord::Journal::Record.create(subject: record, action: action) }
       end
     end

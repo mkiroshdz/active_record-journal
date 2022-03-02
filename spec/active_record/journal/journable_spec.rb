@@ -76,20 +76,21 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
   describe 'only create conditioned' do
     let(:book_model) do
-      Class.new(ActiveRecord::Base) do
+      Class.new(Anonymous) do
         self.table_name = :books
         journal_writes on: %i[create], except: %i[title], if: ->(rec) { rec.title.to_s.include?('translation') }
         journal_writes on: %i[create], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }
       end
     end
   
-    let!(:book1) { book_model.create!(title: 'Don Quixote. translation', resume: 'Adventure') }
-    let!(:book2) { book_model.create!(title: 'El canto del mio cid. translation') }
-    let!(:book3) { book_model.create!(title: 'Calculus I. Second edition') }
+    let(:book1) { book_model.create!(title: 'Don Quixote. translation', resume: 'Adventure') }
+    let(:book2) { book_model.create!(title: 'El canto del mio cid. translation') }
+    let(:book3) { book_model.create!(title: 'Calculus I. Second edition') }
   
     before do
       book1.update!(title: 'Don Quixote de la Mancha')
       book2.destroy
+      book3
     end
   
     describe 'conditions check' do
@@ -114,7 +115,7 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
   describe 'only destroy conditioned' do
     let(:book_model) do
-      Class.new(ActiveRecord::Base) do
+      Class.new(Anonymous) do
         self.table_name = :books
         journal_writes on: %i[destroy], except: %i[title], if: ->(rec) { rec.title.to_s.include?('translation') }
         journal_writes on: %i[destroy], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }
@@ -153,7 +154,7 @@ RSpec.describe ActiveRecord::Journal::Journable do
 
   describe 'only update conditioned' do
     let(:book_model) do
-      Class.new(ActiveRecord::Base) do
+      Class.new(Anonymous) do
         self.table_name = :books
         journal_writes on: %i[update], except: %i[title], if: ->(rec) { rec.title.to_s.include?('translation') }
         journal_writes on: %i[update], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }

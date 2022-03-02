@@ -5,6 +5,13 @@ class CustomJournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
 
+class Anonymous < ActiveRecord::Base
+  self.abstract_class = true
+  def self.model_name
+    ActiveModel::Name.new(self, Fixtures, 'Anonymous')
+  end
+end
+
 module Fixtures
   class AppRecord < ActiveRecord::Base
     self.abstract_class = true
