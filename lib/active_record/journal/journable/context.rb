@@ -34,12 +34,18 @@ module ActiveRecord
           rules.search_by(action: action.to_s)&.any? || false
         end
 
-        def record(journable, type = nil, with: nil)
+        def record_when(journable, type = nil, **with)
           options = ActiveRecord::Journal::Journable::Options.parse(with, type)
           rule = ActiveRecord::Journal::Journable::Rule.new(journable, options)
           options.on.each { |action| rules.add(action: action, journable: journable, rule: rule) }
         end
 
+        def while_calling
+          ActiveRecord::Journal::Record.context_override = self
+          yield
+          ActiveRecord::Journal::Record.context_override = nil
+        end
+        
         def rules
           @rules ||= Storage.new
         end

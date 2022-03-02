@@ -1,12 +1,13 @@
 RSpec.describe ActiveRecord::Journal::Journable do
   let(:configuration) { ActiveRecord::Journal.configuration }
   let(:journal_records) { configuration.journal }
+  let(:user) { Fixtures::User.create!(username: 'p3tr0nila') }
 
-  describe 'STI override only reads' do
+  describe 'STI config overwriten with only reads' do
     let(:context) { klass.send(:journable_context) }
     let(:klass) { Fixtures::GuestAuthor }
 
-    context 'when write actions' do
+    context 'when writing journable' do
       let(:record) { klass.create!(name: 'Homer', last_name: 'Simpson') }
       let(:journal_records) { record.journal_records }
 
@@ -15,31 +16,51 @@ RSpec.describe ActiveRecord::Journal::Journable do
         record.destroy!
       end
   
-      it 'does not trigger write callbacks' do
+      it 'does not record journal' do
         expect(journal_records.count).to eq 0
       end
     end
 
-    context 'when read actions' do
+    context 'when reading journable' do
+      let(:authors) do 
+        [
+          klass.create!(name: 'Homer', last_name: 'Simpson'),
+          klass.create!(name: 'Homer', last_name: 'Anon.')
+        ]
+      end
+      
+      it 'records journal' do
+        authors.each(&:reload)
+        klass.where(name: 'Homer').to_a
+        expect(authors[0].journal_records.where(action: :read).count).to eq 2
+        expect(authors[1].journal_records.where(action: :read).count).to eq 2
+      end
+    end
+
+    context 'when config overwriten for block' do
+      let(:author) { klass.create!(last_name: 'Simpson') }
+
       before do
-        klass.create!(name: 'Homer', last_name: 'Simpson')
-        klass.create!(name: 'Homer', last_name: 'Anon.')
+        author.reload
+        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+          context.record_when(klass, :reads, if: ->(r) { r.last_name == 'Doe' })
+          context.while_calling { author.reload }
+        end
+        author.reload
       end
 
-      it 'trigger read callbacks' do
-        fst, scd, _ = klass.where(name: 'Homer').to_a
-        expect(fst.journal_records.where(action: :read).count).to eq 1
-        expect(scd.journal_records.where(action: :read).count).to eq 1
+      it 'records journal' do
+        expect(author.journal_records.where(action: :read).count).to eq 2
       end
     end
   end
 
-  describe 'STI inherited only writes' do
+  describe 'STI with config inherited with only writes' do
     let(:context) { klass.send(:journable_context) }
     let(:klass) { Fixtures::OriginalAuthor }
 
-    context 'when write actions' do
-      let(:record) { klass.create!(name: 'Homer', last_name: 'Simpson') }
+    context 'when writing journable' do
+      let(:record) { klass.create!(last_name: 'Simpson') }
       let(:journal_records) { record.journal_records }
 
       before do
@@ -47,15 +68,45 @@ RSpec.describe ActiveRecord::Journal::Journable do
         record.destroy!
       end
 
-      it 'trigger create callbacks' do
+      it 'records create journal' do
         expect(journal_records.where(action: :create).count).to eq 1
       end
 
-      it 'trigger update callbacks' do
+      it 'records update journal' do
         expect(journal_records.where(action: :update).count).to eq 1
       end
 
-      it 'trigger destroy callbacks' do
+      it 'records destroy journal' do
+        expect(journal_records.where(action: :destroy).count).to eq 1
+      end
+    end
+
+    context 'when config overwriten for block' do
+      let(:record) { klass.create!(last_name: 'Simpson') }
+      let(:journal_records) { record.journal_records }
+
+      before do
+        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+          context.record_when(klass, :writes, on: %i[destroy], if: ->(_) { false })
+          context.while_calling do
+            record.update!(name: 'Homer')
+            record.update!(name: 'Richard')
+            record.destroy!
+          end
+        end
+        klass.create!(last_name: 'Smith')
+        record.destroy!
+      end
+
+      it 'records create journal' do
+        expect(journal_records.where(action: :create).count).to eq 1
+      end
+
+      it 'records update journal' do
+        expect(journal_records.where(action: :update).count).to eq 2
+      end
+
+      it 'records destroy journal' do
         expect(journal_records.where(action: :destroy).count).to eq 1
       end
     end
@@ -74,7 +125,35 @@ RSpec.describe ActiveRecord::Journal::Journable do
     end
   end
 
-  describe 'only create conditioned' do
+  describe 'config inherited from abstract model' do
+    let(:context) { klass.send(:journable_context) }
+    let(:klass) { Fixtures::SelfPublisher }
+    let(:record) { klass.create!(name: 'Cosme', author_id: 1).reload }
+
+    before do
+      record.update!(name: 'Fulanito')
+      record.destroy!
+    end
+
+    it 'record for read' do
+      expect(journal_records.where(action: :read).count).to eq 1
+    end
+
+    it 'record for create' do
+      expect(journal_records.where(action: :create).count).to eq 1
+    end
+
+    it 'record for update' do
+      expect(journal_records.where(action: :update).count).to eq 1
+    end
+
+    it 'record for destroy' do
+      expect(journal_records.where(action: :destroy).count).to eq 1
+    end
+
+  end
+
+  describe 'config for create action conditioned' do
     let(:book_model) do
       Class.new(Anonymous) do
         self.table_name = :books
@@ -101,19 +180,19 @@ RSpec.describe ActiveRecord::Journal::Journable do
       end
     end
   
-    describe 'tracked changes' do
+    describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]
         expect(journal_records.all[1].changes_map.keys).to eq %w[title]
       end
     end
 
-    describe 'tracked actions' do
+    describe 'record actions' do
       it { expect(journal_records.all.map(&:action)).to all(eq 'create') }
     end
   end
 
-  describe 'only destroy conditioned' do
+  describe 'config for destroy action conditioned' do
     let(:book_model) do
       Class.new(Anonymous) do
         self.table_name = :books
@@ -140,19 +219,19 @@ RSpec.describe ActiveRecord::Journal::Journable do
       end
     end
   
-    describe 'tracked changes' do
+    describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]
         expect(journal_records.all[1].changes_map.keys).to eq %w[title]
       end
     end
 
-    describe 'tracked actions' do
+    describe 'record actions' do
       it { expect(journal_records.all.map(&:action)).to all(eq 'destroy') }
     end
   end
 
-  describe 'only update conditioned' do
+  describe 'config for update action conditioned' do
     let(:book_model) do
       Class.new(Anonymous) do
         self.table_name = :books
@@ -181,43 +260,15 @@ RSpec.describe ActiveRecord::Journal::Journable do
       end
     end
   
-    describe 'tracked changes' do
+    describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]
         expect(journal_records.all[1].changes_map.keys).to eq %w[title]
       end
     end
 
-    describe 'tracked actions' do
+    describe 'record actions' do
       it { expect(journal_records.all.map(&:action)).to all(eq 'update') }
     end
-  end
-
-  describe 'From abstract journable' do
-    let(:context) { klass.send(:journable_context) }
-    let(:klass) { Fixtures::SelfPublisher }
-    let(:record) { klass.create!(name: 'Cosme', author_id: 1).reload }
-
-    before do
-      record.update!(name: 'Fulanito')
-      record.destroy!
-    end
-
-    it 'record for read' do
-      expect(journal_records.where(action: :read).count).to eq 1
-    end
-
-    it 'record for create' do
-      expect(journal_records.where(action: :create).count).to eq 1
-    end
-
-    it 'record for update' do
-      expect(journal_records.where(action: :update).count).to eq 1
-    end
-
-    it 'record for destroy' do
-      expect(journal_records.where(action: :destroy).count).to eq 1
-    end
-
   end
 end

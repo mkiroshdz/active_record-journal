@@ -13,6 +13,7 @@ class Anonymous < ActiveRecord::Base
 end
 
 module Fixtures
+  class User < ActiveRecord::Base; end
   class AppRecord < ActiveRecord::Base
     self.abstract_class = true
   end
