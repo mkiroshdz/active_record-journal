@@ -1,6 +1,6 @@
 RSpec.describe ActiveRecord::Journal::Journable::Rule do
   let(:options) { ActiveRecord::Journal::Journable::Options.new(**kwargs) }
-  subject { described_class.new(Class.new(Fixtures::AppRecord), options) }
+  subject { described_class.new(Class.new(Fixtures::JournableAppRecord), options) }
 
   describe '#conditions_met?' do
     context 'when no conditions' do

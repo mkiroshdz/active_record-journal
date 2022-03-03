@@ -24,7 +24,6 @@ RSpec.configure do |config|
     ActiveRecord::Journal.instance_variable_set('@configuration', nil)
     ActiveRecord::Journal.init do |config|
       config.journal_class_name = init_params[:journal_class_name] if init_params[:journal_class_name]
-      config.journable_class_names = init_params[:journable_class_names] if init_params[:journable_class_names]
       config.allowed_on = init_params[:allowed_on] if init_params[:allowed_on]
       config.autorecording_enabled = init_params[:autorecording_enabled]
     end

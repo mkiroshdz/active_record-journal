@@ -1,24 +1,34 @@
 class JournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
+
 class CustomJournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
 
-class Anonymous < ActiveRecord::Base
-  self.abstract_class = true
-  def self.model_name
-    ActiveModel::Name.new(self, Fixtures, 'Anonymous')
-  end
-end
-
 module Fixtures
-  class User < ActiveRecord::Base; end
   class AppRecord < ActiveRecord::Base
     self.abstract_class = true
   end
 
-  class Publisher < AppRecord
+  class JournableAppRecord < ActiveRecord::Base
+    extend ActiveRecord::Journal::Journable
+
+    self.abstract_class = true
+  end
+
+  class Anonymous < ActiveRecord::Base
+    extend ActiveRecord::Journal::Journable
+    
+    self.abstract_class = true
+    def self.model_name
+      ActiveModel::Name.new(self, Fixtures, 'Fixtures::Anonymous')
+    end
+  end
+
+  class User < JournableAppRecord; end
+
+  class Publisher < JournableAppRecord
     self.abstract_class = true
     journal_reads 
     journal_writes
@@ -26,7 +36,7 @@ module Fixtures
   class SelfPublisher < Publisher; end
 
   # STI
-  class Author < AppRecord
+  class Author < JournableAppRecord
     has_many :journal_records, as: :journable
     journal_writes
   end
@@ -36,12 +46,12 @@ module Fixtures
   end
   class OriginalAuthor < Author; end
 
-  class Book < AppRecord    
+  class Book < JournableAppRecord    
     has_many :custom_journal_records, as: :journable
     journal_reads(journal: CustomJournalRecord)
   end
 
-  class BookAuthor < AppRecord
+  class BookAuthor < JournableAppRecord
     belongs_to :author
     journal_reads(journal: CustomJournalRecord, if: :guest?)
     journal_writes(on: %i[create], only: %i[book_id], unless: :without_author?)

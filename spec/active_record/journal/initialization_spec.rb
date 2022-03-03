@@ -3,7 +3,6 @@ RSpec.describe ActiveRecord::Journal do
     subject { described_class.configuration }
 
     let(:journal) { ActiveRecord::Journal.configuration.journal }
-    let(:journables) { [ ActiveRecord::Base ] }
     let(:allowed_on) { %w[reads writes] }
     let(:autorecording_enabled) { true }
 
@@ -11,9 +10,6 @@ RSpec.describe ActiveRecord::Journal do
       it { is_expected.not_to be nil }
       it { is_expected.to be_an_instance_of(described_class::Configuration) }
       it { expect(subject.journal).to eq journal }
-      it { expect(subject.journables).to eq journables }
-      it { expect(subject.journables).to all(respond_to(:journal_reads)) }
-      it { expect(subject.journables).to all(respond_to(:journal_writes)) }
       it { expect(subject.allowed_on).to eq allowed_on }
       it { expect(subject.autorecording_enabled).to eq autorecording_enabled }
     end
@@ -24,12 +20,6 @@ RSpec.describe ActiveRecord::Journal do
 
     context 'when journal_class_name set', init_params: { journal_class_name: 'CustomJournalRecord' } do
       let(:journal) { CustomJournalRecord }
-      
-      include_examples 'has settings'
-    end
-
-    context 'when journable_class_names set', init_params: { journable_class_names: [ 'Fixtures::AppRecord' ] } do
-      let(:journables) { [ Fixtures::AppRecord ] }
       
       include_examples 'has settings'
     end

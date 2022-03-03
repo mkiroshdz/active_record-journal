@@ -1,5 +1,5 @@
 RSpec.describe ActiveRecord::Journal::Journable::Context do
-  let(:context) { klass.send(:journable_context) }
+  let(:context) { klass.journable_context }
 
   describe '#configured_for?' do
     context 'when everything allowed' do

@@ -25,11 +25,9 @@ module ActiveRecord
   end
 end
 
-ActiveSupport.on_load(:active_record) do
-  ActiveRecord::Journal.configuration.journables.each do |model_class|
-    ActiveRecord::Journal::Journable.prepare(model_class)
-  end
-end
+# ActiveSupport.on_load(:active_record) do
+#   ActiveRecord::Base.class_attribute :journable_context 
+# end
 
 # Configuration: # automatic_recording (default true) / custom attribute comparison ex: html
 # ActiveRecord::Journal::Task

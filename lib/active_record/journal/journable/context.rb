@@ -13,8 +13,8 @@ module ActiveRecord
 
           def add(action:, journable:, rule:)
             map = public_send(action)
-            map[journable.model_name.name] ||= []
-            map[journable.model_name.name] << rule
+            map[journable.model_name.to_s] ||= []
+            map[journable.model_name.to_s] << rule
           end
 
           def search_by(action:, subject: nil)
