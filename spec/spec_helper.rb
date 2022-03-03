@@ -12,17 +12,25 @@ include AppFilesHelper
 include DatabaseConfigurationHelper
 
 RSpec.configure do |config|
-  config.add_setting :schema, default: 'version_1'
-  config.before(:suite) do 
+  config.before(:suite) do |ctx|
+    schema_name = ctx.metadata[:schema] || 'postgresql'
     load_database_config
     configure_database_tasks
+    load_database_schema(schema_name)
   end
-  config.before(:all) { load_database_schema(RSpec.configuration.schema) }
-  config.before(:example) do 
+
+  config.before(:example) do |example|
+    init_params = example.metadata[:init_params] || {}
     ActiveRecord::Journal.instance_variable_set('@configuration', nil)
-    ActiveRecord::Journal.configuration
+    ActiveRecord::Journal.init do |config|
+      config.journal_class_name = init_params[:journal_class_name] if init_params[:journal_class_name]
+      config.journable_class_names = init_params[:journable_class_names] if init_params[:journable_class_names]
+      config.allowed_on = init_params[:allowed_on] if init_params[:allowed_on]
+      config.autorecording_enabled = init_params[:autorecording_enabled]
+    end
     trucante_database_tables
   end
+
   config.example_status_persistence_file_path = ".rspec_status"
   config.disable_monkey_patching!
   config.expect_with :rspec do |c|

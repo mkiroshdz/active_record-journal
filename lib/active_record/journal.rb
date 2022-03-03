@@ -31,13 +31,18 @@ ActiveSupport.on_load(:active_record) do
   end
 end
 
-# Configuration: # automatic_recording (default true)
-# ActiveRecord::Journal.with_tag(user: user, description: 'Comment') do
+# Configuration: # automatic_recording (default true) / custom attribute comparison ex: html
+# ActiveRecord::Journal::Task
+  # install -> Generate migration and models.
+  # prepare
+# rake 
+
+# ActiveRecord::Journal.with_tag(user: user, description: 'Comment', uuid: 'something') do
   # record_when(Book, :writes, with: options)
   # while_calling { actions_to_track }
 # end
 
-  # ActiveRecord::Journal.ignore do
-    # ignored actions here
-  # end
+# ActiveRecord::Journal.ignore do
+  # ignored actions here
 # end
+

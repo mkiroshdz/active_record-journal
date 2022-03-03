@@ -18,6 +18,8 @@ module ActiveRecord
       def self.create(subject:, action:)
         default_rules = rules_for(context: subject.journable_context, action: action, subject: subject) || {}
         override_rules = rules_for(context: context_override, action: action, subject: subject) || {}
+        
+        return unless ActiveRecord::Journal.configuration.autorecording_enabled || context_override
 
         default_rules.each do |journal, list|
           list.each do |rule|
