@@ -49,6 +49,10 @@ module ActiveRecord
         def rules
           @rules ||= Storage.new
         end
+
+        def tag
+          @tag ||= JournalTag.create!(user: user, description: description)
+        end
       end
     end
   end

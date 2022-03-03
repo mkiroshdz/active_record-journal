@@ -35,7 +35,7 @@ end
   # prepare
 # rake 
 
-# ActiveRecord::Journal.with_tag(user: user, description: 'Comment', uuid: 'something') do
+# ActiveRecord::Journal.with_tag(user: user, description: 'Comment', uuid: 'something', remote_address: ..) do
   # record_when(Book, :writes, with: options)
   # while_calling { actions_to_track }
 # end

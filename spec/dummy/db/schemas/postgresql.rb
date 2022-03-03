@@ -37,10 +37,13 @@ ActiveRecord::Schema[7.0].define(version: 0) do
   end
 
   create_table :journal_tags do |t|
-    t.string :comment
+    t.string :description
+    t.string :journable_type
+    t.integer :journable_id
     t.string :search_vector
-    t.jsonb :journable_id
     t.datetime :created_at
+    t.string :user_type
+    t.integer :user_id
   end
 
   create_table :journal_records do |t|
@@ -48,7 +51,7 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.string :action
     t.string :journable_type
     t.integer :journable_id
-    t.string :journal_tags_type
+    t.string :journal_tag_type
     t.integer :journal_tag_id
     t.string :user_type
     t.integer :user_id

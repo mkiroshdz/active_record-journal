@@ -16,10 +16,10 @@ module ActiveRecord
       end
 
       def self.create(subject:, action:)
+        return unless ActiveRecord::Journal.configuration.autorecording_enabled || context_override
+
         default_rules = rules_for(context: subject.journable_context, action: action, subject: subject) || {}
         override_rules = rules_for(context: context_override, action: action, subject: subject) || {}
-        
-        return unless ActiveRecord::Journal.configuration.autorecording_enabled || context_override
 
         default_rules.each do |journal, list|
           list.each do |rule|
@@ -28,7 +28,7 @@ module ActiveRecord
             attributes = Attributes.new(subject, rule)
             changes = Changes.new(subject, action, attributes.tracked_keys).call
             next unless action == 'read' || changes.any?
-            rule.journal.create!(changes_map: changes, journable: subject, action: action)
+            rule.journal.create!(changes_map: changes, journable: subject, journal_tag: context_override&.tag, action: action)
           end
         end
       end
