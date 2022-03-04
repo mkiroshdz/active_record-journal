@@ -1,6 +1,6 @@
 module ActiveRecord
   module Journal    
-    module Record
+    module Journable
       Attributes = Struct.new(:subject, :rule) do
         def model
           subject.class

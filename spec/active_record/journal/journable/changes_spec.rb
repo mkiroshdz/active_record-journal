@@ -1,4 +1,4 @@
-RSpec.describe ActiveRecord::Journal::Record::Changes do
+RSpec.describe ActiveRecord::Journal::Journable::Changes do
   describe '#call' do
     subject { described_class.new(record, action, keys).call }
 

@@ -1,6 +1,6 @@
 module ActiveRecord
   module Journal    
-    module Record
+    module Journable
       Changes = Struct.new(:subject, :action, :keys) do
         def call
           case action

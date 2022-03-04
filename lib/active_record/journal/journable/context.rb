@@ -41,9 +41,11 @@ module ActiveRecord
         end
 
         def while_calling
-          ActiveRecord::Journal::Record.context_override = self
+          ActiveRecord::Journal.context_override = self
           yield
-          ActiveRecord::Journal::Record.context_override = nil
+          ActiveRecord::Journal.context_override = nil
+        rescue StandardError
+          ActiveRecord::Journal.context_override = nil
         end
         
         def rules

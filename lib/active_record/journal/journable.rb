@@ -1,18 +1,20 @@
 require_relative 'journable/options'
 require_relative 'journable/rule'
 require_relative 'journable/context'
+require_relative 'journable/attributes'
+require_relative 'journable/changes'
+require_relative 'journable/callback'
 
 module ActiveRecord
   module Journal
     module Journable
       def self.extended(subject)
         subject.class_attribute :journable_context 
-        factory = ActiveRecord::Journal::Record
 
-        subject.after_find ->(record) { factory.create(subject: record, action: 'read') }
-        subject.after_create ->(record) { factory.create(subject: record, action: 'create') }
-        subject.before_update ->(record) { factory.create(subject: record, action: 'update') }
-        subject.before_destroy ->(record) { factory.create(subject: record, action: 'destroy') }
+        subject.after_find &Callback.new('read')
+        subject.after_create &Callback.new('create')
+        subject.before_update &Callback.new('update')
+        subject.before_destroy &Callback.new('destroy')
       end
 
       ##

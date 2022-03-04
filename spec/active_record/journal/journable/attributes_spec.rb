@@ -1,4 +1,4 @@
-RSpec.describe ActiveRecord::Journal::Record::Attributes do
+RSpec.describe ActiveRecord::Journal::Journable::Attributes do
   subject { described_class.new(record, rule) }
   let(:record) { model.new }
 

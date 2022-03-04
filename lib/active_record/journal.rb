@@ -1,7 +1,6 @@
 require 'active_record/journal/version'
 require 'active_record/journal/constants'
 require 'active_record/journal/configuration'
-require 'active_record/journal/record'
 require 'active_record/journal/journable' 
 
 module ActiveRecord
@@ -21,26 +20,25 @@ module ActiveRecord
         context = Journable::Context.new(user: user, description: description)
         yield context
       end
+
+      def context_override
+        # https://ruby-doc.org/core-2.5.0/Thread.html#method-i-thread_variable_get
+        Thread.current.thread_variable_get(:activerecord_journable_context_override)
+      end
+
+      def context_override=(context)
+        # https://ruby-doc.org/core-2.5.0/Thread.html#method-i-thread_variable_set
+        Thread.current.thread_variable_set(:activerecord_journable_context_override, context)
+      end
     end
   end
 end
 
-# ActiveSupport.on_load(:active_record) do
-#   ActiveRecord::Base.class_attribute :journable_context 
-# end
-
-# Configuration: # automatic_recording (default true) / custom attribute comparison ex: html
-# ActiveRecord::Journal::Task
-  # install -> Generate migration and models.
-  # prepare
-# rake 
-
-# ActiveRecord::Journal.with_tag(user: user, description: 'Comment', uuid: 'something', remote_address: ..) do
-  # record_when(Book, :writes, with: options)
-  # while_calling { actions_to_track }
-# end
-
-# ActiveRecord::Journal.ignore do
-  # ignored actions here
-# end
+# Send tag to if block 
+  # Allow dynamic fields in tag 
+  # Generate search vector (Value Object to be a value object)
+  # Case when the actions raises an error. (Should reset the context_override)
+  # interface for Journal.group, Journal.ignore, Journal.context
+  # ActiveRecord::Journal::Task.install (migrations, generatos, models)
+  # JournalRecord, JournalTag
 
