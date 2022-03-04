@@ -21,14 +21,14 @@ module ActiveRecord
       # Enable & configure the tracking of the read actions
       def journal_reads(**kwargs)
         init_journable_context
-        journable_context.record_when(self, :reads, **kwargs)
+        journable_context.record(self, :reads, **kwargs)
       end
 
       ##
       # Enable & configure the tracking of the writes, updates and destroy actions
       def journal_writes(**kwargs)
         init_journable_context
-        journable_context.record_when(self, :writes, **kwargs)
+        journable_context.record(self, :writes, **kwargs)
       end
 
       private

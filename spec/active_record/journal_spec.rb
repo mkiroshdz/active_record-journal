@@ -67,7 +67,7 @@ RSpec.describe ActiveRecord::Journal do
 
       before do
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
-          context.record_when(klass, :reads, if: ->(r) { r.last_name == 'Doe' })
+          context.record(klass, :reads, if: ->(r) { r.last_name == 'Doe' })
           context.actions { author.reload }
         end
         author.reload
@@ -154,7 +154,7 @@ RSpec.describe ActiveRecord::Journal do
 
       before do
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
-          context.record_when(klass, :writes, on: %i[destroy], if: ->(_) { false })
+          context.record(klass, :writes, on: %i[destroy], if: ->(_) { false })
           context.actions do
             record.update!(name: 'Jane')
             record.update!(name: 'Erick')
