@@ -55,8 +55,8 @@ module ActiveRecord
           @rules ||= Storage.new
         end
 
-        def tag
-          @tag ||= JournalTag.create!(**@tags_args)
+        def tag(tags_class)
+          @tag ||= tags_class.create!(**@tags_args)
         end
       end
     end

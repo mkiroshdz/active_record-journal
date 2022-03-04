@@ -24,16 +24,22 @@ module ActiveRecord
               next unless rules_met?(rule: rule, override: override[journal], record: record)
               attributes = Attributes.new(record, rule).tracked_keys
               changes = Changes.new(record, action, attributes).call
-              record_changes(changes: changes, record: record, journal: rule.journal)
+              context = context_override || record.class.journable_context
+              record_changes(
+                changes: changes, 
+                record: record, 
+                entries_class: rule.entries_class,
+                tag: context.tag(rule.tags_class)
+              )
             end
           end
         end
 
         private
 
-        def record_changes(journal:, changes:, record:)
+        def record_changes(entries_class:, changes:, record:, tag:)
           return unless action == 'read' || changes.any?
-          journal.create!(changes_map: changes, journable: record, journal_tag: context_override&.tag, action: action)
+          entries_class.create!(changes_map: changes, journable: record, journal_tag: tag, action: action)
         end
 
         def rules_met?(rule:, override:, record:)
@@ -45,7 +51,7 @@ module ActiveRecord
           context
             &.rules
             &.search_by(action: action, subject: record)
-            &.group_by {|r| r.journal.model_name.param_key }
+            &.group_by {|r| r.entries_class.model_name.param_key }
         end
 
         def valid_context?

@@ -1,6 +1,6 @@
 RSpec.describe ActiveRecord::Journal do
   let(:configuration) { ActiveRecord::Journal.configuration }
-  let(:journal_records) { configuration.journal }
+  let(:journal_records) { configuration.entries_class }
   let(:user) { Fixtures::User.create!(username: 'janedoe') }
 
   describe 'STI config overwriten with only reads' do
@@ -39,7 +39,7 @@ RSpec.describe ActiveRecord::Journal do
       end
     end
 
-    context 'when autorecording disabled', init_params: { autorecording_enabled: false } do
+    context 'when autorecording disabled', autorecording_enabled: false do
       let(:record) { klass.create!(name: 'Jane', last_name: 'Doe') }
       let(:journal_records) { super().where(action: :read) }
 
@@ -85,7 +85,7 @@ RSpec.describe ActiveRecord::Journal do
 
     context 'when writing journable' do
       let(:record) { klass.create!(last_name: 'Austin') }
-      let(:journal_records) { configuration.journal.where(journable: record) }
+      let(:journal_records) { configuration.entries_class.where(journable: record) }
 
       before do
         record.update!(last_name: 'Wrong')
@@ -111,10 +111,10 @@ RSpec.describe ActiveRecord::Journal do
       end
     end
 
-    context 'when autorecording disabled', init_params: { autorecording_enabled: false } do
+    context 'when autorecording disabled', autorecording_enabled: false do
       let(:record) { klass.create!(last_name: 'Austin') }
       let(:record2) { klass.create!(last_name: 'King') }
-      let(:journal_records) { configuration.journal }
+      let(:journal_records) { configuration.entries_class }
 
       before do
         record.update!(name: 'Jane')
@@ -150,7 +150,7 @@ RSpec.describe ActiveRecord::Journal do
 
     context 'when config overwriten for block' do
       let(:record) { klass.create!(last_name: 'Austin') }
-      let(:journal_records) { configuration.journal.where(journable: record) }
+      let(:journal_records) { configuration.entries_class.where(journable: record) }
 
       before do
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
@@ -179,7 +179,7 @@ RSpec.describe ActiveRecord::Journal do
     end
 
     context 'when read actions' do
-      let(:journal_records) { configuration.journal.where(action: :read) }
+      let(:journal_records) { configuration.entries_class.where(action: :read) }
 
       before do
         klass.create!(last_name: 'Garcia Marquez')

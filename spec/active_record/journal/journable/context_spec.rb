@@ -36,25 +36,25 @@ RSpec.describe ActiveRecord::Journal::Journable::Context do
 
     it 'set correct read options' do
       expect(rules.search_by(action: 'read').first.to_h).to include(
-        type: :reads, journal: CustomJournalRecord, on: ActiveRecord::Journal::ACTIONS[:reads], if: :guest?
+        type: :reads, entries_class: CustomJournalRecord, on: ActiveRecord::Journal::ACTIONS[:reads], if: :guest?
       )
     end
 
     it 'set correct create options' do
       expect(rules.search_by(action: 'create').first.to_h).to include(
-        type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[create], unless: :without_author?, only: %w[book_id]
+        type: :writes, entries_class: ActiveRecord::Journal.configuration.entries_class, on: %w[create], unless: :without_author?, only: %w[book_id]
       )
     end
 
     it 'set correct update options' do
       expect(rules.search_by(action: 'update').first.to_h).to include(
-        type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[update], if: :with_author?, except: %w[author_id]
+        type: :writes, entries_class: ActiveRecord::Journal.configuration.entries_class, on: %w[update], if: :with_author?, except: %w[author_id]
       )
     end
 
     it 'set correct destroy options' do
       expect(rules.search_by(action: 'destroy').first.to_h).to include(
-        type: :writes, journal: ActiveRecord::Journal.configuration.journal, on: %w[destroy], only: []
+        type: :writes, entries_class: ActiveRecord::Journal.configuration.entries_class, on: %w[destroy], only: []
       )
     end
   end

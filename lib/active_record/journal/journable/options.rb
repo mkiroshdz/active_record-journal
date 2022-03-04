@@ -6,7 +6,6 @@ module ActiveRecord
       Options = Struct.new(*ActiveRecord::Journal::JOURNABLE_OPTIONS, keyword_init: true) do
         def self.parse(kwargs, type)
           options = Options.new(**kwargs, type: type)
-          options.check_type!
           options.check_actions!
           options
         end
@@ -14,16 +13,12 @@ module ActiveRecord
         def initialize(**kwargs)
           type = kwargs[:type].to_sym 
           kwargs[:type] = type
-          kwargs[:journal] ||= config.journal
+          kwargs[:entries_class] ||= ActiveRecord::Journal.configuration.entries_class
+          kwargs[:tags_class] ||= ActiveRecord::Journal.configuration.tags_class
           kwargs[:on] = kwargs[:on]&.map(&:to_s) || ActiveRecord::Journal::ACTIONS[type]
           kwargs[:only] = kwargs[:only]&.map(&:to_s)
           kwargs[:except] = kwargs[:except]&.map(&:to_s)
           super(**kwargs)
-        end
-
-        def check_type!
-          raise OptionError.new("#{type} actions are not allowed") if config.allowed_on.exclude?(type.to_s)
-          self
         end
 
         def check_actions!
@@ -31,12 +26,6 @@ module ActiveRecord
             next if ActiveRecord::Journal::ACTIONS[type.to_sym].include?(action)
             raise OptionError.new("#{action} is not a valid value for the on option") 
           end
-        end
-
-        private
-
-        def config
-          ActiveRecord::Journal.configuration
         end
       end
     end

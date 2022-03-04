@@ -1,18 +1,16 @@
 module ActiveRecord
   module Journal
     class Configuration
-      attr_writer :journal_class_name, :allowed_on, :autorecording_enabled
+      attr_writer :entries_class, :tags_class, :autorecording_enabled
 
-      DEFAULT_JOURNAL = 'JournalRecord'
-      DEFAULT_ALLOWED_ON = %w[reads writes].freeze
-
-      def journal
-        class_name = @journal_class_name.presence || DEFAULT_JOURNAL
-        class_name.constantize
+      def entries_class
+        return @entries_class if @entries_class.is_a?(Class)
+        @entries_class = @entries_class.constantize
       end
 
-      def allowed_on
-        @allowed_on&.map(&:to_s) || DEFAULT_ALLOWED_ON
+      def tags_class
+        return @tags_class if @tags_class.is_a?(Class)
+        @tags_class = @tags_class.constantize
       end
 
       def autorecording_enabled

@@ -38,7 +38,7 @@ The models that inherit from 'ActiveRecord::Journal::Tag' will group those recor
 ### Initial configuration
 
 ```ruby
-  ActiveRecord::Journal.configuration.journal = BookStoreJournal
+  ActiveRecord::Journal.configuration.entries_class = BookStoreJournal
   ActiveRecord::Journal.configuration.tag = BookStoreJournalTag
 ```
 

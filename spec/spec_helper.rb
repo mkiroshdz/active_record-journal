@@ -4,12 +4,16 @@ require 'active_record/database_configurations'
 require "active_record/journal"
 require 'pry'
 
-require_relative 'fixtures/models'
 require_relative 'support/app_files_helper'
 require_relative 'support/database_configuration_helper'
 
 include AppFilesHelper
 include DatabaseConfigurationHelper
+
+ActiveRecord::Journal.configuration.entries_class = 'JournalRecord'
+ActiveRecord::Journal.configuration.tags_class = 'JournalTag'
+
+require_relative 'fixtures/models'
 
 RSpec.configure do |config|
   config.before(:suite) do |ctx|
@@ -20,11 +24,13 @@ RSpec.configure do |config|
   end
 
   config.before(:example) do |example|
-    init_params = example.metadata[:init_params] || {}
+    init_params = example.metadata
     ActiveRecord::Journal.instance_variable_set('@configuration', nil)
-    ActiveRecord::Journal.init do |config|
-      config.journal_class_name = init_params[:journal_class_name] if init_params[:journal_class_name]
-      config.allowed_on = init_params[:allowed_on] if init_params[:allowed_on]
+    ActiveRecord::Journal.configuration.tap do |config|
+      config.instance_variable_set('@entries_class', nil)
+      config.instance_variable_set('@tags_class', nil)
+      config.entries_class = init_params[:entries_class] || JournalRecord
+      config.tags_class = init_params[:tags_class] || JournalTag
       config.autorecording_enabled = init_params[:autorecording_enabled]
     end
     trucante_database_tables
