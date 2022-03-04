@@ -27,11 +27,15 @@ RSpec.describe ActiveRecord::Journal do
       end
       let(:journal_records) { super().where(action: :read) }
 
+      before do
+        ActiveRecord::Journal.ignore do |c|
+          c.actions { records.each(&:reload) }
+        end
+        records.each {|r| klass.find(r.id) }
+      end
+
       it 'records journal' do
-        records.each(&:reload)
-        klass.where(last_name: 'Doe').to_a
-        expect(journal_records.where(journable: records.first).count).to eq 2
-        expect(journal_records.where(journable: records.last).count).to eq 2
+        expect(journal_records.count).to eq 2
       end
     end
 
@@ -40,15 +44,21 @@ RSpec.describe ActiveRecord::Journal do
       let(:journal_records) { super().where(action: :read) }
 
       before do
-        record.reload
-        klass.where(last_name: 'Doe').first
+        2.times { record.reload }
+        klass.find(record.id)
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
-          context.while_calling { record.reload }
+          context.actions { record.reload }
         end
       end
 
       it 'records journal' do
-        expect(journal_records.where(journable: record).count).to eq 1
+        expect(journal_records.count).to eq 1
+      end
+
+      it 'creates tag' do
+        tag = JournalTag.first
+        expect(tag.user).to eq user
+        expect(journal_records.where(journal_tag_id: tag.id).count).to eq 1
       end
     end
 
@@ -58,7 +68,7 @@ RSpec.describe ActiveRecord::Journal do
       before do
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.record_when(klass, :reads, if: ->(r) { r.last_name == 'Doe' })
-          context.while_calling { author.reload }
+          context.actions { author.reload }
         end
         author.reload
       end
@@ -78,7 +88,13 @@ RSpec.describe ActiveRecord::Journal do
       let(:journal_records) { configuration.journal.where(journable: record) }
 
       before do
-        record.update!(last_name: 'Anon.')
+        record.update!(last_name: 'Wrong')
+        ActiveRecord::Journal.ignore do |c|
+          c.actions do
+            record.update!(last_name: 'Anon')
+            record.update!(last_name: 'Anonymous')
+          end
+        end
         record.destroy!
       end
 
@@ -102,8 +118,8 @@ RSpec.describe ActiveRecord::Journal do
 
       before do
         record.update!(name: 'Jane')
-        ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
-          context.while_calling do 
+        ActiveRecord::Journal.tag(user: user) do |context|
+          context.actions do 
             klass.create!(last_name: 'Smith')
             record.update!(name: 'Erick')
             record.destroy! 
@@ -124,6 +140,12 @@ RSpec.describe ActiveRecord::Journal do
       it 'records destroy journal' do
         expect(journal_records.where(action: :destroy).count).to eq 1
       end
+
+      it 'creates tag' do
+        tag = JournalTag.first
+        expect(tag.user).to eq user
+        expect(journal_records.where(journal_tag_id: tag.id).count).to eq 3
+      end
     end
 
     context 'when config overwriten for block' do
@@ -133,7 +155,7 @@ RSpec.describe ActiveRecord::Journal do
       before do
         ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.record_when(klass, :writes, on: %i[destroy], if: ->(_) { false })
-          context.while_calling do
+          context.actions do
             record.update!(name: 'Jane')
             record.update!(name: 'Erick')
             record.destroy!
@@ -173,11 +195,21 @@ RSpec.describe ActiveRecord::Journal do
   describe 'config inherited from abstract model' do
     let(:context) { klass.journable_context }
     let(:klass) { Fixtures::SelfPublisher }
-    let(:record) { klass.create!(name: 'Gustav', author_id: 1).reload }
+    let(:record) { klass.create!(name: 'Gustav', author_id: 1) }
 
     before do
+      ActiveRecord::Journal.tag(description: 'Rename and destroy') do |c|
+        c.actions do
+          record.reload
+        end
+      end
+
       record.update!(name: 'Friederich')
       record.destroy!
+
+      ActiveRecord::Journal.ignore do |c|
+        c.actions { klass.create!(name: 'Karl', author_id: 1).reload.destroy }
+      end
     end
 
     it 'record for read' do
@@ -196,6 +228,11 @@ RSpec.describe ActiveRecord::Journal do
       expect(journal_records.where(action: :destroy).count).to eq 1
     end
 
+    it 'creates tag' do
+      tag = JournalTag.first
+      expect(tag.description).to eq 'Rename and destroy'
+      expect(journal_records.where(journal_tag_id: tag.id).count).to eq 2
+    end
   end
 
   describe 'config for create action conditioned' do

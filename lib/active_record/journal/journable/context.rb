@@ -2,7 +2,7 @@ module ActiveRecord
   module Journal
     module Journable
       class Context
-        attr_reader :user, :description
+        attr_writer :ignore_actions
 
         Storage = Struct.new(*ActiveRecord::Journal::ACTIONS.values.flatten.map(&:to_sym), keyword_init: true) do
           def initialize
@@ -39,12 +39,16 @@ module ActiveRecord
           options.on.each { |action| rules.add(action: action, journable: journable, rule: rule) }
         end
 
-        def while_calling
+        def actions
           ActiveRecord::Journal.context_override = self
           yield
           ActiveRecord::Journal.context_override = nil
         rescue StandardError
           ActiveRecord::Journal.context_override = nil
+        end
+
+        def ignore_actions
+          @ignore_actions || false
         end
         
         def rules

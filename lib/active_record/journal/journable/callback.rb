@@ -15,7 +15,7 @@ module ActiveRecord
 
         def call(record)
           return unless valid_context?
-
+          
           override = rules_for(context: context_override, record: record) || {}
           rules = rules_for(context: record.class.journable_context, record: record)
 
@@ -49,7 +49,7 @@ module ActiveRecord
         end
 
         def valid_context?
-          configuration.autorecording_enabled || context_override
+          (configuration.autorecording_enabled || context_override) &&  !!context_override&.ignore_actions == false
         end
 
         def context_override

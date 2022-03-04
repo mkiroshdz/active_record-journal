@@ -21,6 +21,17 @@ module ActiveRecord
         yield context
       end
 
+      def context
+        context = Journable::Context.new
+        yield context
+      end
+
+      def ignore
+        context = Journable::Context.new
+        context.ignore_actions = true
+        yield context
+      end
+
       def context_override
         # https://ruby-doc.org/core-2.5.0/Thread.html#method-i-thread_variable_get
         Thread.current.thread_variable_get(:activerecord_journable_context_override)
