@@ -16,8 +16,8 @@ module ActiveRecord
         yield configuration
       end
 
-      def with_tag(user: nil, description: nil)
-        context = Journable::Context.new(user: user, description: description)
+      def tag(**kwargs)
+        context = Journable::Context.new(**kwargs)
         yield context
       end
 

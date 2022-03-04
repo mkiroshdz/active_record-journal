@@ -25,9 +25,8 @@ module ActiveRecord
           end
         end
   
-        def initialize(user: nil, description: nil)
-          @user = user
-          @description = description
+        def initialize(**tags_args)
+          @tags_args = tags_args
         end
 
         def configured_for?(action)
@@ -53,7 +52,7 @@ module ActiveRecord
         end
 
         def tag
-          @tag ||= JournalTag.create!(user: user, description: description)
+          @tag ||= JournalTag.create!(**@tags_args)
         end
       end
     end

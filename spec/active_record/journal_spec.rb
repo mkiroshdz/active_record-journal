@@ -42,7 +42,7 @@ RSpec.describe ActiveRecord::Journal do
       before do
         record.reload
         klass.where(last_name: 'Doe').first
-        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+        ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.while_calling { record.reload }
         end
       end
@@ -56,7 +56,7 @@ RSpec.describe ActiveRecord::Journal do
       let(:author) { klass.create!(last_name: 'Austin') }
 
       before do
-        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+        ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.record_when(klass, :reads, if: ->(r) { r.last_name == 'Doe' })
           context.while_calling { author.reload }
         end
@@ -102,7 +102,7 @@ RSpec.describe ActiveRecord::Journal do
 
       before do
         record.update!(name: 'Jane')
-        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+        ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.while_calling do 
             klass.create!(last_name: 'Smith')
             record.update!(name: 'Erick')
@@ -131,7 +131,7 @@ RSpec.describe ActiveRecord::Journal do
       let(:journal_records) { configuration.journal.where(journable: record) }
 
       before do
-        ActiveRecord::Journal.with_tag(user: user, description: 'test') do |context|
+        ActiveRecord::Journal.tag(user: user, description: 'test') do |context|
           context.record_when(klass, :writes, on: %i[destroy], if: ->(_) { false })
           context.while_calling do
             record.update!(name: 'Jane')
