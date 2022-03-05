@@ -1,8 +1,6 @@
 # ActiveRecord::Journal
 
-'ActiveRecord::Journal' allows you to keep track of the CRUDs on your 'ActiveRecord' models, as well as groups of operations tagged with data (ex: the user or job that triggered the actions, description, ...).
-
-This gem works rails applications and standalone usages of the active record module.
+ActiveRecord::Journal allows you to keep track of the CRUDs on your ActiveRecord models and tag them with the data of your choice (the user or job that triggered the actions, description, ...).
 
 ## Installation
 
@@ -23,23 +21,44 @@ Or install it yourself as:
 
 ## Usage
 
-### Journal Models
+### Logs persistance
 
-The gem data will be handled by two models that you will define
+You need to define the models that will persist the records and tags of the CRUDs.
 
 ```ruby
-  class BookStoreJournal < ActiveRecord::Journal::Record; end
-  class BookStoreJournalTag < ActiveRecord::Journal::Tag; end
+  class BookChangeLog < ActiveRecord::Base; end
+  class BookChangeTag < ActiveRecord::Base; end
 ```
 
-The models that inherit from 'ActiveRecord::Journal::Record' will keep track of the cruds.
-The models that inherit from 'ActiveRecord::Journal::Tag' will group those records and add some data for context.
+The minimun attributes required for the models are shown in this schema: 
+
+```ruby
+  create_table :book_change_logs do |t| # Table for the records
+    # t.string :changes_map 
+    t.jsonb :changes_map
+    t.string :action
+    t.string :journable_type
+    t.integer :journable_id
+    t.string :journal_tag_type
+    t.integer :journal_tag_id
+    t.datetime :created_at
+  end
+
+  create_table :book_change_tags do |t| # Table for the tags
+    t.string :journable_type
+    t.integer :journable_id
+    t.datetime :created_at
+  end
+```
+
+Note: The gem assumes that the `BookChangeLog#changes_map=` receives a hash and the logic to handle the serialization will be handled by the model regardless of the type of changes_map in the database.
 
 ### Initial configuration
 
 ```ruby
-  ActiveRecord::Journal.configuration.entries_class = BookStoreJournal
-  ActiveRecord::Journal.configuration.tag = BookStoreJournalTag
+  ActiveRecord::Journal.configuration.entries_class = 'BookChangeLog'
+  ActiveRecord::Journal.configuration.tags_class = 'BookChangeTag'
+  ActiveRecord::Journal.configuration.autorecording_enabled = true
 ```
 
 ### Extend Journable Interface
@@ -47,30 +66,36 @@ The models that inherit from 'ActiveRecord::Journal::Tag' will group those recor
 This will provide the required methods to enable tracking in the models.
 
 ```ruby
-  class JournableRecord < ActiveRecord::Base
+  class RecordWithLogs < ActiveRecord::Base
+    self.abstract_class = true
     extend ActiveRecord::Journal::Journable
   end
 ```
 
 ### Model tracking
 
+You can use the methods `ActiveRecord::Journal::Journable::journal_writes` and `ActiveRecord::Journal::Journable::journal_reads` to define a set of rules that tell your model how to keep track of the records. Every time a CRUD is triggered all the rules defined are checked and executed if the necessary conditions are met.
+
 ```ruby
-  class Author < JournableRecord   
-    journal_reads # Enables/Configures reads tracking
+  class Author < RecordWithLogs   
+    journal_writes on: %i[create]
+    journal_writes on: %i[update], only: %i[name last_name]
   end
 
-  class Book < JournableRecord    
+  class Book < RecordWithLogs    
     belongs_to :author
-    journal_writes # Enables/Configures writes tracking
+    journal_reads unless: :best_seller?
+    journal_reads entries_class: CustomBookChangeLog, tag_class: BookChangeTag, if: :best_seller?
+    journal_writes 
   end
 ```
 
-### Group operations
+### Tag operations
 
-The records created by multiple cruds can be grouped.
+You can create and associate a tag to a group of CRUDS.
 
 ```ruby
-  ActiveRecord::Journal.tag(user: current_user) do
+  ActiveRecord::Journal.tag(user: current_user, description: 'Create book') do
     actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
