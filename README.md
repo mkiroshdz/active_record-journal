@@ -95,8 +95,8 @@ You can use the methods `ActiveRecord::Journal::Journable::journal_writes` and `
 You can create and associate a tag to a group of CRUDS.
 
 ```ruby
-  ActiveRecord::Journal.tag(user: current_user, description: 'Create book') do
-    actions do
+  ActiveRecord::Journal.tag(user: current_user, description: 'Create book') do |tag|
+    tag.actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
     end
@@ -108,8 +108,8 @@ You can create and associate a tag to a group of CRUDS.
 Can ignore actions originally configured to be tracked.
 
 ```ruby
-  ActiveRecord::Journal.ignore do
-    actions do
+  ActiveRecord::Journal.ignore do |context|
+    context.actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
     end
@@ -119,17 +119,17 @@ Can ignore actions originally configured to be tracked.
 ### One time constraints
 
 ```ruby
-  ActiveRecord::Journal.tag(user: current_user) do
-    record(Book, if: ->(record) { record.author.present? })
-    actions do
+  ActiveRecord::Journal.tag(user: current_user) do |tag|
+    tag.record(Book, if: ->(record) { record.author.present? })
+    tag.actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
     end
   end
 
-  ActiveRecord::Journal.context do
-    record(Book, if: ->(record) { record.author.present? })
-    actions do
+  ActiveRecord::Journal.context do |context|
+    context.record(Book, if: ->(record) { record.author.present? })
+    context.actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
     end
