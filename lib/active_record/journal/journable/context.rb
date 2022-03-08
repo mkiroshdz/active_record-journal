@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord
   module Journal
     module Journable
@@ -7,7 +9,7 @@ module ActiveRecord
         Storage = Struct.new(*ActiveRecord::Journal::ACTIONS.values.flatten.map(&:to_sym), keyword_init: true) do
           def initialize
             actions = ActiveRecord::Journal::ACTIONS.values.flatten
-            kwargs = actions.each_with_object({}) {|a, map| map[a.to_sym] = {} }
+            kwargs = actions.each_with_object({}) { |a, map| map[a.to_sym] = {} }
             super(**kwargs)
           end
 
@@ -18,13 +20,18 @@ module ActiveRecord
           end
 
           def search_by(action:, subject: nil)
-            return unless map = public_send(action)
+            map = public_send(action)
+            return unless map
+
             return map.values.flatten if subject.nil?
-            return unless key = map.keys.find {|name| subject.is_a?(name.constantize) }
+
+            key = map.keys.find { |name| subject.is_a?(name.constantize) }
+            return unless key
+
             map[key]
           end
         end
-  
+
         def initialize(**tags_args)
           @tags_args = tags_args
         end
@@ -50,7 +57,7 @@ module ActiveRecord
         def ignore_actions
           @ignore_actions || false
         end
-        
+
         def rules
           @rules ||= Storage.new
         end

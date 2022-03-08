@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe ActiveRecord::Journal do
   let(:configuration) { ActiveRecord::Journal.configuration }
   let(:journal_records) { configuration.entries_class }
@@ -15,14 +17,14 @@ RSpec.describe ActiveRecord::Journal do
         record.update!(last_name: 'Anon.')
         record.destroy!
       end
-  
+
       it 'does not record journal' do
         expect(journal_records.count).to eq 0
       end
     end
 
     context 'when reading journable' do
-      let(:records) do 
+      let(:records) do
         [klass.create!(name: 'Jane', last_name: 'Doe'), klass.create!(name: 'Jonh', last_name: 'Doe')]
       end
       let(:journal_records) { super().where(action: :read) }
@@ -31,7 +33,7 @@ RSpec.describe ActiveRecord::Journal do
         ActiveRecord::Journal.ignore do |c|
           c.actions { records.each(&:reload) }
         end
-        records.each {|r| klass.find(r.id) }
+        records.each { |r| klass.find(r.id) }
       end
 
       it 'records journal' do
@@ -119,10 +121,10 @@ RSpec.describe ActiveRecord::Journal do
       before do
         record.update!(name: 'Jane')
         ActiveRecord::Journal.tag(user: user) do |context|
-          context.actions do 
+          context.actions do
             klass.create!(last_name: 'Smith')
             record.update!(name: 'Erick')
-            record.destroy! 
+            record.destroy!
           end
         end
         record2.destroy!
@@ -243,17 +245,17 @@ RSpec.describe ActiveRecord::Journal do
         journal_writes on: %i[create], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }
       end
     end
-  
+
     let(:book1) { book_model.create!(title: 'Don Quixote. translation', resume: 'Adventure') }
     let(:book2) { book_model.create!(title: 'El canto del mio cid. translation') }
     let(:book3) { book_model.create!(title: 'Calculus I. Second edition') }
-  
+
     before do
       book1.update!(title: 'Don Quixote de la Mancha')
       book2.destroy
       book3
     end
-  
+
     describe 'conditions check' do
       it 'records only compliant records' do
         expect(journal_records.where(journable: book1).count).to be 1
@@ -261,7 +263,7 @@ RSpec.describe ActiveRecord::Journal do
         expect(journal_records.where(journable: book3).count).to be 1
       end
     end
-  
+
     describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]
@@ -282,17 +284,17 @@ RSpec.describe ActiveRecord::Journal do
         journal_writes on: %i[destroy], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }
       end
     end
-  
+
     let!(:book1) { book_model.create!(title: 'Don Quixote. translation', resume: 'Adventure').reload }
     let!(:book2) { book_model.create!(title: 'El canto del mio cid. translation').reload }
     let!(:book3) { book_model.create!(title: 'Calculus I. Second edition').reload }
-  
+
     before do
       book1.destroy!
       book2.destroy!
       book3.destroy!
     end
-  
+
     describe 'conditions check' do
       it 'records only compliant records' do
         expect(journal_records.where(journable: book1).count).to be 1
@@ -300,7 +302,7 @@ RSpec.describe ActiveRecord::Journal do
         expect(journal_records.where(journable: book3).count).to be 1
       end
     end
-  
+
     describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]
@@ -321,11 +323,11 @@ RSpec.describe ActiveRecord::Journal do
         journal_writes on: %i[update], only: %i[title], if: ->(rec) { rec.title.to_s.include?('edition') }
       end
     end
-  
+
     let!(:book1) { book_model.create!(title: 'Don Quixote').reload }
     let!(:book2) { book_model.create!(title: 'El canto del mio cid.').reload }
     let!(:book3) { book_model.create!(title: 'Calculus I').reload }
-  
+
     before do
       book1.update!(resume: 'Adventure', title: 'El Quixote. translation')
       book2.update!(title: 'El canto del mio cid. translation')
@@ -333,7 +335,7 @@ RSpec.describe ActiveRecord::Journal do
       book1.destroy!
       book3.destroy!
     end
-  
+
     describe 'conditions check' do
       it 'records only compliant records' do
         expect(journal_records.where(journable: book1).count).to be 1
@@ -341,7 +343,7 @@ RSpec.describe ActiveRecord::Journal do
         expect(journal_records.where(journable: book3).count).to be 1
       end
     end
-  
+
     describe 'record changes' do
       it do
         expect(journal_records.all[0].changes_map.keys).to eq %w[resume]

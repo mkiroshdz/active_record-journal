@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe ActiveRecord::Journal::Journable::Options do
   subject { described_class.new(**kwargs) }
   let(:configurations) { ActiveRecord::Journal.configuration }
@@ -39,7 +41,7 @@ RSpec.describe ActiveRecord::Journal::Journable::Options do
   end
 
   describe 'normalization' do
-    let(:kwargs) do 
+    let(:kwargs) do
       { type: :reads, on: %i[create], only: %i[foo], except: %i[foo] }
     end
     let(:options) do
@@ -58,13 +60,13 @@ RSpec.describe ActiveRecord::Journal::Journable::Options do
 
     context 'reads allowed' do
       let(:valid_options) { described_class.new(type: :reads, on: %i[read]) }
-      let(:invalid_options) { described_class.new(type: :reads, on: %i[create]) }  
+      let(:invalid_options) { described_class.new(type: :reads, on: %i[create]) }
       include_examples 'validate allowed actions'
     end
 
     context 'writes allowed' do
       let(:valid_options) { described_class.new(type: :writes, on: %i[create]) }
-      let(:invalid_options) { described_class.new(type: :writes, on: %i[read]) }  
+      let(:invalid_options) { described_class.new(type: :writes, on: %i[read]) }
       include_examples 'validate allowed actions'
     end
   end

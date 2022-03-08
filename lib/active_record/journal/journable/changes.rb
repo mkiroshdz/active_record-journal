@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 module ActiveRecord
-  module Journal    
+  module Journal
     module Journable
       Changes = Struct.new(:subject, :action, :keys) do
         def call
@@ -22,15 +24,15 @@ module ActiveRecord
         private
 
         def destroy_diff
-          subject.attributes.select {|k, v| keys.include?(k) && v.present? }
+          subject.attributes.select { |k, v| keys.include?(k) && v.present? }
         end
 
         def non_persisted_diff
-          diff.select {|k, v| keys.include?(k) && v.last.present? }
+          diff.select { |k, v| keys.include?(k) && v.last.present? }
         end
 
         def persisted_diff
-          diff.select {|k, v| keys.include?(k) }
+          diff.select { |k, _v| keys.include?(k) }
         end
 
         def diff

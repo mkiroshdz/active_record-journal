@@ -1,10 +1,12 @@
+# frozen_string_literal: true
+
 require 'active_record/journal/version'
 require 'active_record/journal/constants'
 require 'active_record/journal/configuration'
-require 'active_record/journal/journable' 
+require 'active_record/journal/journable'
 
 module ActiveRecord
-  module Journal    
+  module Journal
     class Error < StandardError; end
 
     class << self
@@ -45,11 +47,10 @@ module ActiveRecord
   end
 end
 
-# Send tag to if block 
-  # Allow dynamic fields in tag 
-  # Generate search vector (Value Object to be a value object)
-  # Case when the actions raises an error. (Should reset the context_override)
-  # interface for Journal.group, Journal.ignore, Journal.context
-  # ActiveRecord::Journal::Task.install (migrations, generatos, models)
-  # JournalRecord, JournalTag
-
+# Send tag to if block
+# Allow dynamic fields in tag
+# Generate search vector (Value Object to be a value object)
+# Case when the actions raises an error. (Should reset the context_override)
+# interface for Journal.group, Journal.ignore, Journal.context
+# ActiveRecord::Journal::Task.install (migrations, generatos, models)
+# JournalRecord, JournalTag

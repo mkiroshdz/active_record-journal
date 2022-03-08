@@ -5,6 +5,39 @@ version: 2.1
 # Define a job to be invoked later in a workflow.
 # See: https://circleci.com/docs/2.0/configuration-reference/#jobs
 jobs:
+  build:
+    docker:
+      - image: cimg/ruby:2.7.0
+        auth:
+          username: $DOCKERHUB_ACCESS_USER
+          password: $DOCKERHUB_ACCESS_TOKEN
+        environment:
+          RAILS_RELATIVE_URL_ROOT: '/home/circleci/project'
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt install -y libpq-dev
+      - run:
+          name: Install dependencies
+          command: bundle install
+  linter:
+    docker:
+      - image: cimg/ruby:2.7.0
+        auth:
+          username: $DOCKERHUB_ACCESS_USER
+          password: $DOCKERHUB_ACCESS_TOKEN
+        environment:
+          RAILS_RELATIVE_URL_ROOT: '/home/circleci/project'
+    steps:
+      - checkout
+      - run: sudo apt-get update
+      - run: sudo apt install -y libpq-dev
+      - run:
+          name: Install dependencies
+          command: bundle install
+      - run:
+          name: Rubocop
+          command: bundle exec rubocop
   specs:
     # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
     # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
@@ -43,5 +76,7 @@ jobs:
 workflows:
   specs-workflow:
     jobs:
+      - build
+      - linter
       - specs:
           context: active_record-journal
