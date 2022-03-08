@@ -6,7 +6,7 @@ module DatabaseConfigurationHelper
   def load_database_config
     return if defined?(@yaml_database_config)
   
-    database_config_path = File.expand_path('config/database.yml', app_root)
+    database_config_path = File.expand_path('spec/dummy/config/database.yml', app_root)
     @yaml_database_config = YAML.load(ERB.new(File.read(database_config_path)).result)
     ActiveRecord::Base.configurations = ActiveRecord::DatabaseConfigurations.new(@yaml_database_config)
   end
@@ -17,7 +17,7 @@ module DatabaseConfigurationHelper
     return if @schema_version == schema_version
 
     @schema_version = schema_version
-    schema_path = File.expand_path("db/schemas/#{@schema_version}.rb", app_root)
+    schema_path = File.expand_path("spec/dummy/db/schemas/#{@schema_version}.rb", app_root)
     ActiveRecord::Tasks::DatabaseTasks.drop_current
     ActiveRecord::Tasks::DatabaseTasks.create_current
     ActiveRecord::Tasks::DatabaseTasks.load_schema_current(:ruby, schema_path)
