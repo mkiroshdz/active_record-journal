@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module ActiveRecord
   module Journal
     module Journable
@@ -10,8 +12,8 @@ module ActiveRecord
           options
         end
 
-        def initialize(**kwargs)
-          type = kwargs[:type].to_sym 
+        def initialize(**kwargs) # rubocop:disable Metrics/PerceivedComplexity, Metrics/CyclomaticComplexity, Metrics/AbcSize
+          type = kwargs[:type].to_sym
           kwargs[:type] = type
           kwargs[:entries_class] ||= ActiveRecord::Journal.configuration.entries_class
           kwargs[:tags_class] ||= ActiveRecord::Journal.configuration.tags_class
@@ -24,7 +26,8 @@ module ActiveRecord
         def check_actions!
           on.each do |action|
             next if ActiveRecord::Journal::ACTIONS[type.to_sym].include?(action)
-            raise OptionError.new("#{action} is not a valid value for the on option") 
+
+            raise OptionError, "#{action} is not a valid value for the on option"
           end
         end
       end

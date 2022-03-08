@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require_relative 'journable/options'
 require_relative 'journable/rule'
 require_relative 'journable/context'
@@ -9,12 +11,12 @@ module ActiveRecord
   module Journal
     module Journable
       def self.extended(subject)
-        subject.class_attribute :journable_context 
+        subject.class_attribute :journable_context
 
-        subject.after_find &Callback.new('read')
-        subject.after_create &Callback.new('create')
-        subject.before_update &Callback.new('update')
-        subject.before_destroy &Callback.new('destroy')
+        subject.after_find(&Callback.new('read'))
+        subject.after_create(&Callback.new('create'))
+        subject.before_update(&Callback.new('update'))
+        subject.before_destroy(&Callback.new('destroy'))
       end
 
       ##
@@ -35,11 +37,10 @@ module ActiveRecord
 
       def init_journable_context
         return if @init_journable_context
+
         self.journable_context = Context.new
         @init_journable_context = true
       end
     end
   end
 end
-
-

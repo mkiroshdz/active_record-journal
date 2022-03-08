@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe ActiveRecord::Journal do
   describe 'initialization' do
     subject { described_class.configuration }
@@ -20,13 +22,13 @@ RSpec.describe ActiveRecord::Journal do
 
     context 'when entries_class set', entries_class: 'CustomJournalRecord' do
       let(:entries_class) { CustomJournalRecord }
-      
+
       include_examples 'has settings'
     end
 
     context 'when autorecording_enabled set', autorecording_enabled: false do
       let(:autorecording_enabled) { false }
-      
+
       include_examples 'has settings'
     end
   end

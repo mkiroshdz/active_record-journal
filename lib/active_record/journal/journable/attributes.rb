@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 module ActiveRecord
-  module Journal    
+  module Journal
     module Journable
       Attributes = Struct.new(:subject, :rule) do
         def model
@@ -25,7 +27,7 @@ module ActiveRecord
         end
 
         def default_ignored_keys
-          [ model.primary_key, model.inheritance_column, model.locking_column ].compact
+          [model.primary_key, model.inheritance_column, model.locking_column].compact
         end
       end
     end

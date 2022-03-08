@@ -1,13 +1,15 @@
+# frozen_string_literal: true
+
 ActiveRecord::Schema[7.0].define(version: 0) do
   # These are extensions that must be enabled in order to support this database
-  enable_extension "plpgsql"
+  enable_extension 'plpgsql'
 
   create_table :users do |t|
     t.string :username
     t.string :email
     t.string :name
   end
-  
+
   create_table :books do |t|
     t.string :title, null: false
     t.string :isbn

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe ActiveRecord::Journal::Journable::Rule do
   let(:options) { ActiveRecord::Journal::Journable::Options.new(**kwargs) }
   subject { described_class.new(Class.new(Fixtures::JournableAppRecord), options) }
@@ -11,7 +13,6 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     context 'when if procedure' do
       let(:kwargs) { { type: :reads, if: ->(r) { !r.nil? } } }
 
-      
       it { expect(subject.conditions_met?(nil)).to be false }
       it { expect(subject.conditions_met?('something')).to be true }
     end
@@ -19,16 +20,15 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     context 'when unless procedure' do
       let(:kwargs) { { type: :reads, unless: ->(r) { r.nil? } } }
 
-      
       it { expect(subject.conditions_met?(nil)).to be false }
       it { expect(subject.conditions_met?('something')).to be true }
     end
 
     context 'when if method' do
-      subject do 
+      subject do
         Fixtures::BookAuthor.journable_context.rules.search_by(action: 'update').first
       end
-      
+
       let(:record_with_author) { Fixtures::BookAuthor.new(author_id: 1) }
       let(:record_without_author) { Fixtures::BookAuthor.new }
 
@@ -37,10 +37,10 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     end
 
     context 'when unless method' do
-      subject do 
+      subject do
         Fixtures::BookAuthor.journable_context.rules.search_by(action: 'create').first
       end
-      
+
       let(:record_with_author) { Fixtures::BookAuthor.new(author_id: 1) }
       let(:record_without_author) { Fixtures::BookAuthor.new }
 
@@ -49,4 +49,3 @@ RSpec.describe ActiveRecord::Journal::Journable::Rule do
     end
   end
 end
-  
