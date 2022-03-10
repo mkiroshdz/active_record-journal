@@ -3,8 +3,19 @@
 module ActiveRecord
   module Journal
     module Journable
-      Changes = Struct.new(:subject, :action, :keys) do
+      Changes = Struct.new(:subject, :action, :keys, :mask_keys) do
         def call
+          changes.each_with_object({}) do |(key, value), attrs|
+            attrs[key] = value
+            next unless mask_keys&.include?(key)
+
+            attrs[key] = value.is_a?(Array) ? [nil, nil] : nil
+          end
+        end
+
+        private
+
+        def changes
           case action
           when 'create'
             non_persisted_diff
@@ -20,8 +31,6 @@ module ActiveRecord
         def none
           {}
         end
-
-        private
 
         def destroy_diff
           subject.attributes.select { |k, v| keys.include?(k) && v.present? }

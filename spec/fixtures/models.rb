@@ -60,15 +60,15 @@ module Fixtures
 
   class Book < JournableAppRecord
     has_many :custom_journal_records, as: :journable
-    journal_reads(entries_class: CustomJournalRecord)
+    journal_reads entries_class: CustomJournalRecord
   end
 
   class BookAuthor < JournableAppRecord
     belongs_to :author
-    journal_reads(entries_class: CustomJournalRecord, if: :guest?)
-    journal_writes(on: %i[create], only: %i[book_id], unless: :without_author?)
-    journal_writes(on: %i[update], except: %i[author_id], if: :with_author?)
-    journal_writes(on: %i[destroy], only: [])
+    journal_reads entries_class: CustomJournalRecord, if: :guest?
+    journal_writes on: %i[create], only: %i[book_id], unless: :without_author?
+    journal_writes on: %i[update], except: %i[author_id], if: :with_author?
+    journal_writes on: %i[destroy], only: []
 
     def with_author?
       !author_id.nil?

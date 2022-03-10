@@ -28,7 +28,7 @@ RSpec.describe ActiveRecord::Journal::Journable::Changes do
         rec
       end
       let(:action) { 'update' }
-      let(:changes) { { 'title' => ['Odyssey', 'The Odyssey'], resume: ['Todo', nil] } }
+      let(:changes) { { 'title' => ['Odyssey', 'The Odyssey'], 'resume' => ['Todo', nil] } }
 
       it { is_expected.to match(hash_including(changes)) }
     end

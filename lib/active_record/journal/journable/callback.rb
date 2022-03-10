@@ -26,7 +26,7 @@ module ActiveRecord
               next unless rules_met?(rule: rule, override: override[journal], record: record)
 
               attributes = Attributes.new(record, rule).tracked_keys
-              changes = Changes.new(record, action, attributes).call
+              changes = Changes.new(record, action, attributes, rule.mask).call
               context = context_override || record.class.journable_context
               record_changes(
                 changes: changes,
