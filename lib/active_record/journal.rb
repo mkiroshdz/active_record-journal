@@ -47,10 +47,5 @@ module ActiveRecord
   end
 end
 
-# Send tag to if block
-# Allow dynamic fields in tag
-# Generate search vector (Value Object to be a value object)
 # Case when the actions raises an error. (Should reset the context_override)
-# interface for Journal.group, Journal.ignore, Journal.context
 # ActiveRecord::Journal::Task.install (migrations, generatos, models)
-# JournalRecord, JournalTag

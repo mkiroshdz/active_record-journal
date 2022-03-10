@@ -20,6 +20,7 @@ module ActiveRecord
           kwargs[:on] = kwargs[:on]&.map(&:to_s) || ActiveRecord::Journal::ACTIONS[type]
           kwargs[:only] = kwargs[:only]&.map(&:to_s)
           kwargs[:except] = kwargs[:except]&.map(&:to_s)
+          kwargs[:mask] = kwargs[:mask]&.map(&:to_s)
           super(**kwargs)
         end
 

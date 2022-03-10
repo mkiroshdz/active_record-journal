@@ -3,7 +3,7 @@
 RSpec.describe ActiveRecord::Journal do
   let(:configuration) { ActiveRecord::Journal.configuration }
   let(:journal_records) { configuration.entries_class }
-  let(:user) { Fixtures::User.create!(username: 'janedoe') }
+  let(:user) { Fixtures::User.create!(username: 'jane-doe') }
 
   describe 'STI config overwriten with only reads' do
     let(:context) { klass.journable_context }
@@ -353,6 +353,26 @@ RSpec.describe ActiveRecord::Journal do
 
     describe 'record actions' do
       it { expect(journal_records.all.map(&:action)).to all(eq 'update') }
+    end
+  end
+
+  describe 'mask fields' do
+    let(:book_model) do
+      Class.new(Fixtures::Anonymous) do
+        self.table_name = :books
+        journal_writes mask: %i[isbn publisher_id]
+      end
+    end
+
+    let!(:record) { book_model.create!(title: 'Don Quixote', isbn: '1234', publisher_id: 1).reload }
+    let(:audit) { journal_records.where(journable: record).first }
+
+    it do
+      expect(audit.changes_map).to match({
+                                           'title' => [nil, 'Don Quixote'],
+                                           'isbn' => [nil, nil],
+                                           'publisher_id' => [nil, nil]
+                                         })
     end
   end
 end
