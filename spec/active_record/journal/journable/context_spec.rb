@@ -4,31 +4,43 @@ RSpec.describe ActiveRecord::Journal::Journable::Context do
   let(:context) { klass.journable_context }
 
   describe '#configured_for?' do
+    shared_examples 'context contains configuration' do
+      it 'sets read action' do
+        expect(context.configured_for?('read')).to eq config[:read]
+      end
+      it 'sets create action' do
+        expect(context.configured_for?('create')).to eq config[:create]
+      end
+      it 'sets update action' do
+        expect(context.configured_for?('update')).to eq config[:update]
+      end
+      it 'sets destroy action' do
+        expect(context.configured_for?('destroy')).to eq config[:destroy]
+      end
+    end
+
     context 'when everything allowed' do
       let(:klass) { Fixtures::BookAuthor }
-
-      it { expect(context.configured_for?('read')).to eq true }
-      it { expect(context.configured_for?('create')).to eq true }
-      it { expect(context.configured_for?('update')).to eq true }
-      it { expect(context.configured_for?('destroy')).to eq true }
+      let(:config) do
+        { read: true, create: true, update: true, destroy: true }
+      end
+      include_examples 'context contains configuration'
     end
 
     context 'when reads allowed' do
       let(:klass) { Fixtures::GuestAuthor }
-
-      it { expect(context.configured_for?('read')).to eq true }
-      it { expect(context.configured_for?('create')).to eq false }
-      it { expect(context.configured_for?('update')).to eq false }
-      it { expect(context.configured_for?('destroy')).to eq false }
+      let(:config) do
+        { read: true, create: false, update: false, destroy: false }
+      end
+      include_examples 'context contains configuration'
     end
 
     context 'when writes allowed' do
       let(:klass) { Fixtures::OriginalAuthor }
-
-      it { expect(context.configured_for?('read')).to eq false }
-      it { expect(context.configured_for?('create')).to eq true }
-      it { expect(context.configured_for?('update')).to eq true }
-      it { expect(context.configured_for?('destroy')).to eq true }
+      let(:config) do
+        { read: false, create: true, update: true, destroy: true }
+      end
+      include_examples 'context contains configuration'
     end
   end
 

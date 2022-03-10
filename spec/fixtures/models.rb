@@ -15,6 +15,10 @@ class CustomJournalRecord < ActiveRecord::Base
   belongs_to :journable, polymorphic: true
 end
 
+class CustomJournalTag < ActiveRecord::Base
+  belongs_to :journable, polymorphic: true
+end
+
 module Fixtures
   class AppRecord < ActiveRecord::Base
     self.abstract_class = true
@@ -44,6 +48,10 @@ module Fixtures
   end
 
   class SelfPublisher < Publisher; end
+
+  class PublisherCompany < Publisher
+    journal_reads
+  end
 
   # STI
   class Author < JournableAppRecord

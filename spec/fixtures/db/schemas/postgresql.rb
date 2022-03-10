@@ -38,6 +38,11 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.integer :ssn
   end
 
+  create_table :publisher_companies do |t|
+    t.string :name
+    t.integer :cid
+  end
+
   create_table :journal_tags do |t|
     t.string :description
     t.string :journable_type
