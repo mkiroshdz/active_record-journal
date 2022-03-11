@@ -2,45 +2,17 @@
 # See: https://circleci.com/docs/2.0/configuration-reference
 version: 2.1
 
-# Define a job to be invoked later in a workflow.
-# See: https://circleci.com/docs/2.0/configuration-reference/#jobs
-jobs:
-  build:
+executors:
+  gem:
     docker:
       - image: cimg/ruby:2.7.0
         auth:
           username: $DOCKERHUB_ACCESS_USER
           password: $DOCKERHUB_ACCESS_TOKEN
         environment:
+          RAILS_ENV: test
           RAILS_RELATIVE_URL_ROOT: '/home/circleci/project'
-    steps:
-      - checkout
-      - run: sudo apt-get update
-      - run: sudo apt install -y libpq-dev
-      - run:
-          name: Install dependencies
-          command: bundle install
-  linter:
-    docker:
-      - image: cimg/ruby:2.7.0
-        auth:
-          username: $DOCKERHUB_ACCESS_USER
-          password: $DOCKERHUB_ACCESS_TOKEN
-        environment:
-          RAILS_RELATIVE_URL_ROOT: '/home/circleci/project'
-    steps:
-      - checkout
-      - run: sudo apt-get update
-      - run: sudo apt install -y libpq-dev
-      - run:
-          name: Install dependencies
-          command: bundle install
-      - run:
-          name: Rubocop
-          command: bundle exec rubocop
-  specs:
-    # Specify the execution environment. You can specify an image from Dockerhub or use one of our Convenience Images from CircleCI's Developer Hub.
-    # See: https://circleci.com/docs/2.0/configuration-reference/#docker-machine-macos-windows-executor
+  postgresql:
     docker:
       - image: cimg/ruby:2.7.0
         auth:
@@ -60,23 +32,74 @@ jobs:
         environment:
           POSTGRES_DB: $POSTGRES_DB
           POSTGRES_PASSWORD: $POSTGRES_PASSWORD
-    # See: https://circleci.com/docs/2.0/configuration-reference/#steps
+
+commands:
+  dependencies:
     steps:
       - checkout
       - run: sudo apt-get update
-      - run: sudo apt install -y libpq-dev
       - run:
-          name: Install dependencies
+          name: Install system dependencies
+          command: sudo apt install -y libpq-dev
+      - run:
+          name: Install gem dependencies
           command: bundle install
+  rubocop:
+    steps:
       - run:
-          name: Specs
-          command: bundle exec rake
+          name: Rubocop
+          command: bundle exec rubocop
+  rspec:
+    steps:
+      - run:
+          name: Run Specs
+          command: bundle exec rspec
+      - persist_to_workspace:
+          root: coverage
+          paths:
+            - .last_run.json
+  simplecov:
+    steps:
+      - attach_workspace:
+          at: coverage
+      - run: chmod +x .circleci/check_converage.rb
+      - run: ./.circleci/check_converage.rb
 
-# See: https://circleci.com/docs/2.0/configuration-reference/#workflows
+jobs:
+  build:
+    executor: gem
+    steps:
+      - dependencies
+  linter:
+    executor: gem
+    steps:
+      - dependencies
+      - rubocop
+  specs:
+    parameters:
+      executor:
+        default: postgresql
+        type: string
+    executor: << parameters.executor >>
+    steps:
+      - dependencies
+      - rspec
+  coverage:
+    executor: gem
+    steps:
+      - dependencies
+      - simplecov
+
 workflows:
-  specs-workflow:
+  integration-workflow:
     jobs:
       - build
-      - linter
+      - linter:
+          requires:
+            - build
       - specs:
-          context: active_record-journal
+          requires:
+            - build
+      - coverage:
+          requires:
+            - specs

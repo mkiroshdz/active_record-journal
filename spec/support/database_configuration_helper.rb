@@ -2,11 +2,12 @@
 
 module DatabaseConfigurationHelper
   # https://github.com/rails/rails/blob/75a9e1be75769ae633a938d81d51e06852a69ea3/activerecord/lib/active_record/database_configurations.rb
+  FIXTURES_PATH = 'spec/fixtures'
 
   def load_database_config
     return if defined?(@yaml_database_config)
 
-    database_config_path = File.expand_path('spec/dummy/config/database.yml', app_root)
+    database_config_path = File.expand_path("#{FIXTURES_PATH}/config/database.yml", app_root)
     @yaml_database_config = YAML.safe_load(ERB.new(File.read(database_config_path)).result)
     ActiveRecord::Base.configurations = ActiveRecord::DatabaseConfigurations.new(@yaml_database_config)
   end
@@ -17,7 +18,7 @@ module DatabaseConfigurationHelper
     return if @schema_version == schema_version
 
     @schema_version = schema_version
-    schema_path = File.expand_path("spec/dummy/db/schemas/#{@schema_version}.rb", app_root)
+    schema_path = File.expand_path("#{FIXTURES_PATH}/db/schemas/#{@schema_version}.rb", app_root)
     ActiveRecord::Tasks::DatabaseTasks.drop_current
     ActiveRecord::Tasks::DatabaseTasks.create_current
     ActiveRecord::Tasks::DatabaseTasks.load_schema_current(:ruby, schema_path)
