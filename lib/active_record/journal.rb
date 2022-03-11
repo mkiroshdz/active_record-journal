@@ -20,6 +20,7 @@ module ActiveRecord
 
       def tag(**kwargs)
         context = Journable::Context.new(**kwargs)
+        context.generate_tag = true
         yield context
       end
 
