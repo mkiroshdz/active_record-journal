@@ -4,7 +4,7 @@ module ActiveRecord
   module Journal
     module Journable
       class Context
-        attr_writer :ignore_actions
+        attr_writer :ignore_actions, :generate_tag
 
         Storage = Struct.new(*ActiveRecord::Journal::ACTIONS.values.flatten.map(&:to_sym), keyword_init: true) do
           def initialize
@@ -58,12 +58,18 @@ module ActiveRecord
           @ignore_actions || false
         end
 
+        def generate_tag
+          @generate_tag || false
+        end
+
         def rules
           @rules ||= Storage.new
         end
 
         def tag(tags_class)
-          @tag ||= tags_class.create!(**@tags_args)
+          return @tag if defined?(@tag)
+
+          @tag = tags_class.create!(**@tags_args) if generate_tag
         end
       end
     end

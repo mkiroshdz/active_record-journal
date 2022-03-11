@@ -1,13 +1,14 @@
 # frozen_string_literal: true
 
 # rubocop:disable Style/MixinUsage
+require 'bundler/setup'
+require 'pry'
+
 require_relative 'support/simplecov'
 
-require 'bundler/setup'
 require 'active_record'
 require 'active_record/database_configurations'
 require 'active_record/journal'
-require 'pry'
 
 require_relative 'support/app_files_helper'
 require_relative 'support/database_configuration_helper'
