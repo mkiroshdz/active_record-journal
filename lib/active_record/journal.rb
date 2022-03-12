@@ -47,6 +47,3 @@ module ActiveRecord
     end
   end
 end
-
-# Case when the actions raises an error. (Should reset the context_override)
-# ActiveRecord::Journal::Task.install (migrations, generatos, models)
