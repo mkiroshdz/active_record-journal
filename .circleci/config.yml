@@ -44,6 +44,8 @@ commands:
       - run:
           name: Install gem dependencies
           command: bundle install
+      - run: chmod +x bin/setup
+      - run: ./bin/setup
   rubocop:
     steps:
       - run:
@@ -62,8 +64,8 @@ commands:
     steps:
       - attach_workspace:
           at: coverage
-      - run: chmod +x .circleci/check_converage.rb
-      - run: ./.circleci/check_converage.rb
+      - run: chmod +x bin/coverage
+      - run: ./bin/coverage
 
 jobs:
   build:
