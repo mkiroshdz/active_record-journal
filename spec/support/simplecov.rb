@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-require 'simplecov'
-
 SimpleCov.root((ENV['RAILS_RELATIVE_URL_ROOT']).to_s)
 SimpleCov.start do
   enable_coverage :branch
