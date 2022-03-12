@@ -40,7 +40,7 @@ commands:
       - run: sudo apt-get update
       - run:
           name: Install system dependencies
-          command: sudo apt install -y libpq-dev
+          command: sudo apt install -y libpq-dev sqlite3 libsqlite3-dev
       - run:
           name: Install gem dependencies
           command: bundle install
@@ -67,23 +67,29 @@ commands:
 
 jobs:
   build:
+    description: 'Build gem dependencies'
     executor: gem
     steps:
       - dependencies
   linter:
+    description: 'Rubocop'
     executor: gem
     steps:
       - dependencies
       - rubocop
   specs:
+    description: 'Run specs'
     parameters:
+      db:
+        type: string
       executor:
-        default: postgresql
         type: string
     executor: << parameters.executor >>
     steps:
       - dependencies
       - rspec
+    environment:
+      DB_CONFIG: << parameters.db >>
   coverage:
     executor: gem
     steps:
@@ -98,8 +104,17 @@ workflows:
           requires:
             - build
       - specs:
+          name: postgres-specs
+          db: postgresql
+          executor: postgresql
+          requires:
+            - build
+      - specs:
+          name: sqlite-specs
+          db: sqlite
+          executor: gem
           requires:
             - build
       - coverage:
           requires:
-            - specs
+            - sqlite-specs
