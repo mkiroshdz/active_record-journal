@@ -4,7 +4,7 @@
 
 ActiveRecord::Journal allows you to keep track of the CRUDs on your ActiveRecord models and tag them with the data of your choice (the user or job that triggered the actions, description, ...).
 
-## Installation
+## Getting started
 
 Add this line to your application's Gemfile:
 
@@ -21,9 +21,17 @@ Or install it yourself as:
     $ gem install active_record-journal
 
 
-## Usage
+## Setup
 
-### Logs persistance
+### Initialization
+
+```ruby
+  ActiveRecord::Journal.configuration.entries_class = 'BookChangeLog'
+  ActiveRecord::Journal.configuration.tags_class = 'BookChangeTag'
+  ActiveRecord::Journal.configuration.autorecording_enabled = true
+```
+
+### Logs
 
 You need to define the models that will persist the records and tags of the CRUDs.
 
@@ -55,15 +63,7 @@ The minimun attributes required for the models are shown in this schema:
 
 Note: The gem assumes that the `BookChangeLog#changes_map=` receives a hash and the logic to handle the serialization will be handled by the model regardless of the type of changes_map in the database.
 
-### Initial configuration
-
-```ruby
-  ActiveRecord::Journal.configuration.entries_class = 'BookChangeLog'
-  ActiveRecord::Journal.configuration.tags_class = 'BookChangeTag'
-  ActiveRecord::Journal.configuration.autorecording_enabled = true
-```
-
-### Extend Journable Interface
+### Extend ActiveRecord::Base
 
 This will provide the required methods to enable tracking in the models.
 
@@ -88,9 +88,11 @@ You can use the methods `ActiveRecord::Journal::Journable::journal_writes` and `
     belongs_to :author
     journal_reads unless: :best_seller?
     journal_reads entries_class: CustomBookChangeLog, tag_class: BookChangeTag, if: :best_seller?
-    journal_writes 
+    journal_writes
   end
 ```
+
+## Usage
 
 ### Tag operations
 
@@ -130,7 +132,7 @@ Can ignore actions originally configured to be tracked.
   end
 
   ActiveRecord::Journal.context do |context|
-    context.record(Book, if: ->(record) { record.author.present? })
+    context.record(Book, unless: ->(record) { record.author.present? })
     context.actions do
       author = Author.find_by(id: params[:author_id])
       Book.create!(title: params[:title], author: author)
@@ -140,20 +142,20 @@ Can ignore actions originally configured to be tracked.
 
 ## Development
 
+### Setup
+
 After checking out the repo, you can build the required containers by running `docker-compose build` and execute them with `docker-compose run gem`.
 
-Inside the container, run `bin/setup` to install dependencies. Then, run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+To install this gem onto your local, run `bundle exec rake install`. 
 
-To install this gem onto your local, run `bundle exec rake install`. To release a new version, update the version number in `version.rb`, and then run `bundle exec rake release`, which will create a git tag for the version, push git commits and tags, and push the `.gem` file to [rubygems.org](https://rubygems.org).
+### Tests
+
+Inside the container, run `rake spec` to run the tests.
 
 ## Contributing
 
-Bug reports and pull requests are welcome on GitHub at https://github.com/mkiroshdz/active_record-journal. This project is intended to be a safe, welcoming space for collaboration, and contributors are expected to adhere to the [Contributor Covenant](http://contributor-covenant.org) code of conduct.
+Bug reports and pull requests are welcome on GitHub at https://github.com/mkiroshdz/active_record-journal.
 
 ## License
 
 The gem is available as open source under the terms of the [MIT License](https://opensource.org/licenses/MIT).
-
-## Code of Conduct
-
-Everyone interacting in the ActiveRecord::Journal project’s codebases, issue trackers, chat rooms and mailing lists is expected to follow the [code of conduct](https://github.com/[USERNAME]/active_record-journal/blob/master/CODE_OF_CONDUCT.md).
