@@ -40,7 +40,7 @@ commands:
       - run: sudo apt-get update
       - run:
           name: Install system dependencies
-          command: sudo apt install -y libpq-dev sqlite3 libsqlite3-dev
+          command: sudo apt install -y libpq-dev sed sqlite3 libsqlite3-dev
       - run:
           name: Install gem dependencies
           command: bundle install
@@ -66,7 +66,11 @@ commands:
           at: coverage
       - run: chmod +x bin/coverage
       - run: ./bin/coverage
-
+  push_credentials:
+    steps:
+      - run: mkdir ~/.gem
+      - run: sed "s/_RUBYGEMS_API_KEY_/${RUBYGEMS_API_KEY}/g" .circleci/push_credentials.yml > ~/.gem/credentials
+      - run: cat ~/.gem/credentials
 jobs:
   build:
     description: 'Build gem dependencies'
@@ -97,9 +101,13 @@ jobs:
     steps:
       - dependencies
       - simplecov
+  release:
+    executor: gem
+    steps:
+      - push_credentials
 
 workflows:
-  integration-workflow:
+  integration:
     jobs:
       - build
       - linter:
@@ -120,3 +128,6 @@ workflows:
       - coverage:
           requires:
             - sqlite-specs
+      - release:
+          requires:
+            - coverage
