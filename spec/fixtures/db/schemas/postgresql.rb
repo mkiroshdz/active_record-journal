@@ -8,6 +8,7 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.string :username
     t.string :email
     t.string :name
+    t.timestamps
   end
 
   create_table :books do |t|
@@ -16,11 +17,13 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.text :resume
     t.integer :year
     t.integer :publisher_id
+    t.timestamps
   end
 
   create_table :book_authors do |t|
     t.integer :book_id
     t.integer :author_id
+    t.timestamps
   end
 
   create_table :authors do |t|
@@ -30,17 +33,20 @@ ActiveRecord::Schema[7.0].define(version: 0) do
     t.date :birthday
     t.string :country
     t.integer :lock_version
+    t.timestamps
   end
 
   create_table :self_publishers do |t|
     t.integer :author_id
     t.string :name
     t.integer :ssn
+    t.timestamps
   end
 
   create_table :publisher_companies do |t|
     t.string :name
     t.integer :cid
+    t.timestamps
   end
 
   create_table :journal_tags do |t|

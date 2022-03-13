@@ -27,7 +27,13 @@ module ActiveRecord
         end
 
         def default_ignored_keys
-          [model.primary_key, model.inheritance_column, model.locking_column].compact
+          [
+            model.primary_key,
+            model.inheritance_column,
+            model.locking_column,
+            'created_at',
+            'updated_at'
+          ].compact.map(&:to_s)
         end
       end
     end
