@@ -3,11 +3,12 @@
 RSpec.describe ActiveRecord::Journal::Journable::Attributes do
   subject { described_class.new(record, rule) }
   let(:record) { model.new }
+  let(:ignored_keys) { %w[id type lock_version created_at updated_at] }
 
   describe '#tracked_keys' do
     let(:model) { Fixtures::Author }
     let(:rule) { model.journable_context.rules.search_by(action: 'update').first }
-    let(:tracked_keys) { subject.keys - %w[id type lock_version] }
+    let(:tracked_keys) { subject.keys - ignored_keys }
 
     it 'returns correct attributes' do
       expect(subject.tracked_keys).to eq tracked_keys
@@ -18,7 +19,6 @@ RSpec.describe ActiveRecord::Journal::Journable::Attributes do
     context 'when no attribute options provided' do
       let(:model) { Fixtures::Author }
       let(:rule) { model.journable_context.rules.search_by(action: 'update').first }
-      let(:ignored_keys) { %w[id type lock_version] }
 
       it 'returns correct attributes' do
         expect(subject.ignored_keys).to eq ignored_keys
