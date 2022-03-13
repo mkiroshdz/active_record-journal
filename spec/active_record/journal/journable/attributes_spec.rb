@@ -3,7 +3,7 @@
 RSpec.describe ActiveRecord::Journal::Journable::Attributes do
   subject { described_class.new(record, rule) }
   let(:record) { model.new }
-  let(:ignored_keys) {  %w[id type lock_version created_at updated_at] }
+  let(:ignored_keys) { %w[id type lock_version created_at updated_at] }
 
   describe '#tracked_keys' do
     let(:model) { Fixtures::Author }

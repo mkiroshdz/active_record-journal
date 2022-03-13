@@ -10,7 +10,8 @@ RSpec.describe ActiveRecord::Journal::Journable::Changes do
       end
     end
 
-    let(:keys) { book_model.column_names.map(&:to_s) - %w[id] }
+    let(:ignored_keys) { %w[id created_at updated_at] }
+    let(:keys) { book_model.column_names.map(&:to_s) - ignored_keys }
     let(:mask_keys) { %w[publisher_id] }
 
     context 'when creating record' do
