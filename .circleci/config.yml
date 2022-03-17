@@ -46,11 +46,6 @@ commands:
           command: bundle install
       - run: chmod +x bin/setup
       - run: ./bin/setup
-  rubocop:
-    steps:
-      - run:
-          name: Rubocop
-          command: bundle exec rubocop
   rspec:
     steps:
       - run:
@@ -73,12 +68,6 @@ jobs:
     executor: gem
     steps:
       - dependencies
-  linter:
-    description: 'Rubocop'
-    executor: gem
-    steps:
-      - dependencies
-      - rubocop
   specs:
     description: 'Run specs'
     parameters:
@@ -102,9 +91,6 @@ workflows:
   integration-workflow:
     jobs:
       - build
-      - linter:
-          requires:
-            - build
       - specs:
           name: postgres-specs
           db: postgresql

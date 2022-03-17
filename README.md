@@ -1,6 +1,7 @@
 # ActiveRecord::Journal
 
 [![CircleCI](https://circleci.com/gh/mkiroshdz/active_record-journal/tree/main.svg?style=svg)](https://circleci.com/gh/mkiroshdz/active_record-journal/tree/main)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/3654af1924a941acb437adb133824ace)](https://www.codacy.com/gh/mkiroshdz/active_record-journal/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=mkiroshdz/active_record-journal&amp;utm_campaign=Badge_Grade)
 [![Gem Version](https://badge.fury.io/rb/active_record-journal.svg)](https://badge.fury.io/rb/active_record-journal)
 
 ActiveRecord::Journal allows you to keep track of the CRUDs on your ActiveRecord models and tag them with the data of your choice (the user or job that triggered the actions, description, ...).
