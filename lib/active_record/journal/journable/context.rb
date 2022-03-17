@@ -52,6 +52,7 @@ module ActiveRecord
           ActiveRecord::Journal.context_override = nil
         rescue StandardError
           ActiveRecord::Journal.context_override = nil
+          raise
         end
 
         def ignore_actions
