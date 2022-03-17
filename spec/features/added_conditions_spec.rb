@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-RSpec.describe 'configuration override' do
+RSpec.describe 'added conditions' do
   let(:context) { klass.journable_context }
   let(:journal_records) { configuration.entries_class }
   let(:configuration) { ActiveRecord::Journal.configuration }
@@ -26,7 +26,7 @@ RSpec.describe 'configuration override' do
     end
 
     context 'when actions raise error' do
-      before do
+      let(:tracking) do
         record.reload
         ActiveRecord::Journal.ignore do |c|
           c.actions do
@@ -37,8 +37,13 @@ RSpec.describe 'configuration override' do
       end
 
       it 'record actions' do
-        expect(tag).to be nil
+        expect { tracking }.to raise_error StandardError
         expect(journal_records.count).to eq 1
+      end
+
+      it 'does not create tags' do
+        expect { tracking }.to raise_error StandardError
+        expect(tag).to be nil
       end
 
       it 'clears context override' do
@@ -67,7 +72,7 @@ RSpec.describe 'configuration override' do
     end
 
     context 'when actions raise error' do
-      before do
+      let(:tracking) do
         ActiveRecord::Journal.tag(description: 'test') do |context|
           context.actions do
             record
@@ -79,16 +84,18 @@ RSpec.describe 'configuration override' do
       end
 
       it 'record actions' do
+        expect { tracking }.to raise_error StandardError
         expect(journal_records.where(journal_tag_id: tag.id).count).to eq 1
       end
 
       it 'clears context override' do
+        expect { tracking }.to raise_error StandardError
         expect(ActiveRecord::Journal.context_override).to be nil
       end
     end
 
     context 'when actions raise error in transaction' do
-      before do
+      let(:tracking) do
         ActiveRecord::Journal.tag(description: 'test') do |context|
           context.actions do
             klass.transaction do
@@ -102,8 +109,13 @@ RSpec.describe 'configuration override' do
       end
 
       it 'record actions' do
-        expect(tag).to be nil
+        expect { tracking }.to raise_error StandardError
         expect(journal_records.count).to eq 0
+      end
+
+      it 'does not create tags' do
+        expect { tracking }.to raise_error StandardError
+        expect(tag).to be nil
       end
 
       it 'clears context override' do
@@ -137,7 +149,7 @@ RSpec.describe 'configuration override' do
     end
 
     context 'when actions raise error' do
-      before do
+      let(:tracking) do
         record
         ActiveRecord::Journal.context do |c|
           c.record(klass, :writes, if: ->(r) { r.last_name == 'Doe' })
@@ -152,8 +164,13 @@ RSpec.describe 'configuration override' do
       end
 
       it 'record actions' do
-        expect(tag).to be nil
+        expect { tracking }.to raise_error StandardError
         expect(journal_records.count).to eq 2
+      end
+
+      it 'does not create tags' do
+        expect { tracking }.to raise_error StandardError
+        expect(tag).to be nil
       end
 
       it 'clears context override' do

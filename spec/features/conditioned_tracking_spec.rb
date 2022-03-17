@@ -39,7 +39,7 @@ RSpec.describe 'conditioned tracking' do
     end
   end
 
-  describe 'when action is destroy' do
+  context 'when action is destroy' do
     let(:book_model) do
       Class.new(Fixtures::Anonymous) do
         self.table_name = :books
@@ -74,7 +74,7 @@ RSpec.describe 'conditioned tracking' do
     end
   end
 
-  describe 'when action is update' do
+  context 'when action is update' do
     let(:book_model) do
       Class.new(Fixtures::Anonymous) do
         self.table_name = :books
