@@ -1,5 +1,6 @@
 # ActiveRecord::Journal
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/879535f417b04c5fa702e96260bb74eb)](https://app.codacy.com/gh/mkiroshdz/active_record-journal?utm_source=github.com&utm_medium=referral&utm_content=mkiroshdz/active_record-journal&utm_campaign=Badge_Grade_Settings)
 [![CircleCI](https://circleci.com/gh/mkiroshdz/active_record-journal/tree/main.svg?style=svg)](https://circleci.com/gh/mkiroshdz/active_record-journal/tree/main)
 [![Gem Version](https://badge.fury.io/rb/active_record-journal.svg)](https://badge.fury.io/rb/active_record-journal)
 
